@@ -28,10 +28,10 @@ namespace Json
     // Life Cycle Management
     public:
         ~Json();
-        Json(const Json) = delete;
-        Json(Json&&) = delete;
+        Json(const Json&) = delete;
+        Json(Json&&);
         Json& operator=(const Json&) = delete;
-        Json& operator=(Json&&) = delete;
+        Json& operator=(Json&&);
 
     // Public methods
     public:
@@ -47,6 +47,26 @@ namespace Json
          *      This is the object to wrap un JSON.
          */
         Json(nullptr_t);
+
+                /**
+         * This constructs a JSON object consisting of the boolean literal.
+         * 
+         * @param[in] value
+         *      This is the object to wrap un JSON.
+         */
+        Json(bool value);
+
+        /**
+         * This is the equality compariosn operator.
+         * 
+         * @param[in] other
+         *      This is the object to compare with this one.
+         * 
+         * @return
+         *      An indication of whether or not the two JSON objects are equal
+         *      is returned.
+         */
+        bool operator==(const Json& other) const;
 
         /**
          * This encode a JSON object into its string format.

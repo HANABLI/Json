@@ -19,7 +19,7 @@ set_target_properties(${this} PROPERTIES
     FOLDER Libraries
 )
 
-target_include_directories(${this} PUBLIC includes)
+target_include_directories(${this} PUBLIC include)
 target_link_libraries(${this} PUBLIC 
 
 )
