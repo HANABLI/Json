@@ -594,7 +594,7 @@ namespace Json{
         }
     }
 
-    std::string Json::ToString(const JsonEncodingOptions options) const {
+    std::string Json::ToEncoding(const JsonEncodingOptions options) const {
         switch (impl_->type)
         {
         case Impl::Type::Null:

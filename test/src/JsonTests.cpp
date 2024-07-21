@@ -13,7 +13,7 @@
 
 TEST(JsonTests, JsonTests_FromNull_Test) {
     Json::Json json(nullptr);
-    ASSERT_EQ("null", json.ToString());
+    ASSERT_EQ("null", json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ToNull_Test) {
@@ -23,8 +23,8 @@ TEST(JsonTests, JsonTests_ToNull_Test) {
 
 TEST(JsonTests, JsonTests_FromBoolean_Test) {
     Json::Json jsonTrue(true), jsonFalse(false);
-    ASSERT_EQ("true", jsonTrue.ToString());
-    ASSERT_EQ("false", jsonFalse.ToString());
+    ASSERT_EQ("true", jsonTrue.ToEncoding());
+    ASSERT_EQ("false", jsonFalse.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ToBoolean__Test) {
@@ -41,7 +41,7 @@ TEST(JsonTests, JsonTests_NtBooleanDowncastToBoolean_Test) {
     EXPECT_EQ(false, (bool)Json::Json(std::string("")));
 }
 
-TEST(JsonTests, JsonTests_NotstringDowncastToString_Test) {
+TEST(JsonTests, JsonTests_NotstringDowncastToEncoding_Test) {
     EXPECT_EQ(std::string(""), (std::string)Json::Json(nullptr));
     EXPECT_EQ(std::string(""), (std::string)Json::Json(false));
     EXPECT_EQ(std::string(""), (std::string)Json::Json(true));
@@ -76,7 +76,7 @@ TEST(JsonTests, NotFlotingPointDownCastToFloatingPoint) {
 
 TEST(JsonTests, JsonTests_FromCString_Test) {
     Json::Json json(std::string("Hello, World!"));
-    ASSERT_EQ("\"Hello, World!\"", json.ToString());
+    ASSERT_EQ("\"Hello, World!\"", json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ToCString_Test) {
@@ -86,7 +86,7 @@ TEST(JsonTests, JsonTests_ToCString_Test) {
 
 TEST(JsonTests, JsonTests_FromCppString_Test) {
     Json::Json json(std::string("Hello, World!"));
-    ASSERT_EQ("\"Hello, World!\"", json.ToString());
+    ASSERT_EQ("\"Hello, World!\"", json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ToCppString_Test) {
@@ -96,7 +96,7 @@ TEST(JsonTests, JsonTests_ToCppString_Test) {
 
 TEST(JsonTests, JsonTests_ProperlyEscapedCharactersInString_Test) {
     Json::Json json(std::string("These need to be escaped: \", \\, \b, \n, \f, \r, \t"));
-    ASSERT_EQ("\"These need to be escaped: \\\", \\\\, \\b, \\n, \\f, \\r, \\t\"", json.ToString());
+    ASSERT_EQ("\"These need to be escaped: \\\", \\\\, \\b, \\n, \\f, \\r, \\t\"", json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ProperlyEscapedUnicodeCharacters_Test) {
@@ -104,11 +104,11 @@ TEST(JsonTests, JsonTests_ProperlyEscapedUnicodeCharacters_Test) {
     std::string testStringEncodedDefault("\"This is the Greek word 'kosme': κόσμε\"");
     std::string testStringEncodedEscapeNonAscii("\"This is the Greek word 'kosme': \\u03BA\\u1F79\\u03C3\\u03BC\\u03B5\"");
     Json::Json json(testStringDecoded);
-    auto jsonEncoding = json.ToString();
+    auto jsonEncoding = json.ToEncoding();
     EXPECT_EQ(testStringEncodedDefault, jsonEncoding);
     Json::JsonEncodingOptions options;
     options.escapeNonAscii = true;
-    jsonEncoding = json.ToString(options);
+    jsonEncoding = json.ToEncoding(options);
     EXPECT_EQ(testStringEncodedEscapeNonAscii, jsonEncoding);
     json = Json::Json::FromString(testStringEncodedDefault);
     EXPECT_EQ(testStringDecoded, (std::string)json);
@@ -126,7 +126,7 @@ TEST(JsonTests, BadlyEscapeUnicodeCharacter) {
 
 TEST(JsonTests, JsonTests_FromInteger_Test) {
     Json::Json json(42);
-    ASSERT_EQ("42", json.ToString());
+    ASSERT_EQ("42", json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ToInteger_Test) {
@@ -138,7 +138,7 @@ TEST(JsonTests, JsonTests_ToInteger_Test) {
 
 TEST(JsonTests, JsonTests_FromFloatingPoint_Test) {
     Json::Json json(3.14159);
-    ASSERT_EQ("3.14159", json.ToString());
+    ASSERT_EQ("3.14159", json.ToEncoding());
 } 
 
 TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {

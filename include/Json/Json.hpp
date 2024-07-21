@@ -180,9 +180,9 @@ namespace Json
          *      JSON object encoding to string format.
          * 
          * @return
-         *      The string format of the JSON object is returned.
+         *      The encoding of the JSON object is returned.
          */
-        std::string ToString(const JsonEncodingOptions options = JsonEncodingOptions()) const;
+        std::string ToEncoding(const JsonEncodingOptions options = JsonEncodingOptions()) const;
 
         /**
          * This method returns a new JSON object constructed by parsing
