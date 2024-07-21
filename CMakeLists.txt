@@ -21,7 +21,8 @@ set_target_properties(${this} PROPERTIES
 
 target_include_directories(${this} PUBLIC include)
 target_link_libraries(${this} PUBLIC 
-
+    StringUtils
+    Utf8
 )
 
 add_subdirectory(test)

@@ -19,6 +19,7 @@ target_include_directories(${this} PRIVATE ..)
 target_link_libraries(${this} PUBLIC
     gtest_main
     Json
+    StringUtils
 )
 
 add_test(

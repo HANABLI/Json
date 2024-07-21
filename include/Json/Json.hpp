@@ -15,6 +15,19 @@
 namespace Json
 {
     /**
+     * This is used to configure various options in 
+     * JSON object encoding to string format.
+     */
+    struct JsonEncodingOptions {
+        
+        /**
+         * This flag indicates whether or not to escape 
+         * non ASCII characters when encoding the JSON
+         * object into its string format.
+         */
+        bool escapeNonAscii = false;
+    };
+    /**
      * This class represent a data structure that was parsed
      * from oe can be rendered to, a string in the JavaScript
      * Object Notation "JSON" Data Interchange Format, as specified
@@ -44,17 +57,50 @@ namespace Json
          * This constructs a JSON object consisting of the "null" literal.
          * 
          * @param[in] null
-         *      This is the object to wrap un JSON.
+         *      This is the object to wrap in JSON.
          */
         Json(nullptr_t);
 
-                /**
-         * This constructs a JSON object consisting of the boolean literal.
+        /**
+         * This constructs a JSON object consisting of the boolean value.
          * 
          * @param[in] value
-         *      This is the object to wrap un JSON.
+         *      This is the object to wrap in JSON.
          */
         Json(bool value);
+
+        /**
+         * This construct a JSON object consisting of an integer value.
+         * 
+         * @param[in] value
+         *      This is the object to wrap in JSON
+         */
+        Json(int value);
+
+        /**
+         * This construct a JSON object consisting of a double value.
+         * 
+         * @param[in] value
+         *      This is the object to wrap in JSON
+         */
+        Json(double value);
+
+        /**
+         * This constructs a JSON object consisting of a string value.
+         * 
+         * @param[in] value
+         *      This is the object to wrap in JSON.
+         */
+        Json(const std::string& value);
+
+        /**
+         * This constructs a json object consisting of a C string value.
+         * 
+         * @param[in] value
+         *      This is the object to wrap in JSON.
+         */
+        Json(const char* value);
+
 
         /**
          * This is the equality compariosn operator.
@@ -69,12 +115,74 @@ namespace Json
         bool operator==(const Json& other) const;
 
         /**
+         * This is the typecast to bool operator for the class.
+         * 
+         * @return
+         *      The boolean equivalent of the JSON object is returned.
+         * 
+         * @retval true
+         *      This is returned if the JSON object is a boolean and its
+         *      value is true.
+         * 
+         * @retval false
+         *      This is returned if the JSON object is not a boolean or it's 
+         *      a boolean and its value is false. 
+         */
+        operator bool() const;
+
+        /**
+         * This is the typecast to C++ string operator for the class.
+         * 
+         * @return
+         *      The C++ string equivalent of the JSON object is returned.
+         * 
+         * 
+         * @retval std::string("")
+         *      This is returned if the JSON object is not a string or it's 
+         *      a string and its value is the empty string. 
+         */
+        operator std::string() const;
+
+        /**
+         * This is the typecast to C++ integer operator for the class.
+         * 
+         * @return
+         *      The C++ integer equivalent of the JSON object is returned.
+         * 
+         * 
+         * @retval 0
+         *      This is returned if the JSON object is not an integer or it's 
+         *      an integer and its value is zero. 
+         */
+        operator int() const;
+
+
+
+         /**
+         * This is the typecast to C++ double operator for the class.
+         * 
+         * @return
+         *      The C++ double equivalent of the JSON object is returned.
+         * 
+         * 
+         * @retval 0.0
+         *      This is returned if the JSON object is not an double or it's 
+         *      an double and its value is zero. 
+         */
+        operator double() const;
+
+        
+        /**
          * This encode a JSON object into its string format.
+         * 
+         * @param[in] options
+         *      This is used to configure various options in 
+         *      JSON object encoding to string format.
          * 
          * @return
          *      The string format of the JSON object is returned.
          */
-        std::string ToString() const;
+        std::string ToString(const JsonEncodingOptions options = JsonEncodingOptions()) const;
 
         /**
          * This method returns a new JSON object constructed by parsing
@@ -83,7 +191,20 @@ namespace Json
          * @param[in] format
          *      This is the string format of the JSON object to construct.
          */
-        static Json FromString(const std::string& format);
+        static Json FromString(const std::string& stringFormat);
+
+        /**
+         * This method sets the flag which controls whether or not
+         * to escape non-ASCII characters when encoding the JSON
+         * object into its string format.
+         * 
+         * @param[in] escape
+         *      This flag indicates whether or not to escape
+         *      non ASCII characters when encoding the JSON
+         *      object into its string format.
+         *      
+         */
+        void SetEscapeNonAscii(bool escape);
 
         // Private properties
     private:
