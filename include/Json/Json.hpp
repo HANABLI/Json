@@ -182,7 +182,7 @@ namespace Json
          * @return
          *      The encoding of the JSON object is returned.
          */
-        std::string ToEncoding(const JsonEncodingOptions options = JsonEncodingOptions()) const;
+        std::string ToEncoding(const JsonEncodingOptions& options = JsonEncodingOptions()) const;
 
         /**
          * This method returns a new JSON object constructed by parsing
@@ -191,7 +191,7 @@ namespace Json
          * @param[in] format
          *      This is the string format of the JSON object to construct.
          */
-        static Json FromString(const std::string& stringFormat);
+        static Json FromEncoding(const std::string& stringFormat);
 
         /**
          * This method sets the flag which controls whether or not

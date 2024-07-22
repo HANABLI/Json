@@ -594,7 +594,7 @@ namespace Json{
         }
     }
 
-    std::string Json::ToEncoding(const JsonEncodingOptions options) const {
+    std::string Json::ToEncoding(const JsonEncodingOptions& options) const {
         switch (impl_->type)
         {
         case Impl::Type::Null:
@@ -618,37 +618,37 @@ namespace Json{
         }
     }
 
-    Json Json::FromString(const std::string& stringFormat) {        
+    Json Json::FromEncoding(const std::string& encoding) {        
         if (
-            !stringFormat.empty()
-            && (stringFormat[0] == '{')
+            !encoding.empty()
+            && (encoding[0] == '{')
         ) {
             // TODO: parse as an object
             return Json();
         } else if (
-            !stringFormat.empty()
-            && (stringFormat[0] == '[')
+            !encoding.empty()
+            && (encoding[0] == '[')
         ) {
             // TODO: parse as an array
             return Json();
         } else if (
-            !stringFormat.empty()
-            && (stringFormat[0] == '"')
-            && (stringFormat[stringFormat.length() - 1] == '"')
+            !encoding.empty()
+            && (encoding[0] == '"')
+            && (encoding[encoding.size() - 1] == '"')
         ) {
-            return Unescape(stringFormat.substr(1, stringFormat.length() - 2));
-        } else if (stringFormat == "null") {
+            return Unescape(encoding.substr(1, encoding.size() - 2));
+        } else if (encoding == "null") {
             return nullptr;
-        } else if (stringFormat == "true") {
+        } else if (encoding == "true") {
             return true;
-        } else if  (stringFormat == "false") {
+        } else if  (encoding == "false") {
             return false;
         } else {
-            if (stringFormat.find_first_of(".eE") != std::string::npos) {
+            if (encoding.find_first_of(".eE") != std::string::npos) {
                 // TODO: parse as floating point
-                return ParseFloatingPoint(stringFormat);
+                return ParseFloatingPoint(encoding);
             } else {
-                return ParseInteger(stringFormat);
+                return ParseInteger(encoding);
             }
         }
     }

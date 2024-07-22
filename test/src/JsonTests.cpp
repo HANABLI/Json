@@ -17,7 +17,7 @@ TEST(JsonTests, JsonTests_FromNull_Test) {
 }
 
 TEST(JsonTests, JsonTests_ToNull_Test) {
-    const auto json = Json::Json::FromString("null");
+    const auto json = Json::Json::FromEncoding("null");
     ASSERT_TRUE(json == nullptr);
 }
 
@@ -28,8 +28,8 @@ TEST(JsonTests, JsonTests_FromBoolean_Test) {
 }
 
 TEST(JsonTests, JsonTests_ToBoolean__Test) {
-    const auto jsonTrue = Json::Json::FromString("true");
-    const auto jsonFalse = Json::Json::FromString("false");
+    const auto jsonTrue = Json::Json::FromEncoding("true");
+    const auto jsonFalse = Json::Json::FromEncoding("false");
     ASSERT_FALSE((bool)jsonFalse);
     ASSERT_TRUE(jsonFalse == Json::Json(false));
     ASSERT_TRUE((bool)jsonTrue);
@@ -57,13 +57,13 @@ TEST(JsonTests, NotIntegerDownCastToInteger) {
 }
 
 TEST(JsonTests, BadNumbers) {
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("-"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("+"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("X"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("0025"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("-0025"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString(".4"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromString("99999999999999999999999999999999999999999999999999999999"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("-"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("+"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("X"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("0025"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("-0025"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding(".4"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999"));
 }
 
 TEST(JsonTests, NotFlotingPointDownCastToFloatingPoint) {
@@ -80,7 +80,7 @@ TEST(JsonTests, JsonTests_FromCString_Test) {
 }
 
 TEST(JsonTests, JsonTests_ToCString_Test) {
-    const auto json = Json::Json::FromString("\"Hello, World!\"");
+    const auto json = Json::Json::FromEncoding("\"Hello, World!\"");
     ASSERT_TRUE(json == "Hello, World!");
 }
 
@@ -90,7 +90,7 @@ TEST(JsonTests, JsonTests_FromCppString_Test) {
 }
 
 TEST(JsonTests, JsonTests_ToCppString_Test) {
-    const auto json = Json::Json::FromString("\"Hello, World!\"");
+    const auto json = Json::Json::FromEncoding("\"Hello, World!\"");
     ASSERT_TRUE(json == "Hello, World!");
 }
 
@@ -110,16 +110,16 @@ TEST(JsonTests, JsonTests_ProperlyEscapedUnicodeCharacters_Test) {
     options.escapeNonAscii = true;
     jsonEncoding = json.ToEncoding(options);
     EXPECT_EQ(testStringEncodedEscapeNonAscii, jsonEncoding);
-    json = Json::Json::FromString(testStringEncodedDefault);
+    json = Json::Json::FromEncoding(testStringEncodedDefault);
     EXPECT_EQ(testStringDecoded, (std::string)json);
-    json = Json::Json::FromString(testStringEncodedEscapeNonAscii);
+    json = Json::Json::FromEncoding(testStringEncodedEscapeNonAscii);
     EXPECT_EQ(testStringDecoded, (std::string)json);
 }
 
 TEST(JsonTests, BadlyEscapeUnicodeCharacter) {
-    auto json = Json::Json::FromString("\"This is bad: \\u123X\"");
+    auto json = Json::Json::FromEncoding("\"This is bad: \\u123X\"");
     EXPECT_EQ("This is bad: \\u123X", (std::string)json);
-    json = Json::Json::FromString("\"This is bad: \\x\"");
+    json = Json::Json::FromEncoding("\"This is bad: \\x\"");
     EXPECT_EQ("This is bad: \\x", (std::string)json);
 
 }
@@ -130,9 +130,9 @@ TEST(JsonTests, JsonTests_FromInteger_Test) {
 }
 
 TEST(JsonTests, JsonTests_ToInteger_Test) {
-    auto json = Json::Json::FromString("42");
+    auto json = Json::Json::FromEncoding("42");
     ASSERT_TRUE(json == Json::Json(42));
-    json = Json::Json::FromString("-242");
+    json = Json::Json::FromEncoding("-242");
     ASSERT_TRUE(json == Json::Json(-242));
 }
 
@@ -142,14 +142,15 @@ TEST(JsonTests, JsonTests_FromFloatingPoint_Test) {
 } 
 
 TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {
-    auto json = Json::Json::FromString("3.14159");
+    auto json = Json::Json::FromEncoding("3.14159");
     ASSERT_TRUE(json == Json::Json(3.14159));
-    json = Json::Json::FromString("-17.030");
+    json = Json::Json::FromEncoding("-17.030");
     ASSERT_TRUE(json == Json::Json(-17.030));
-    json = Json::Json::FromString("5.3e-4");
+    json = Json::Json::FromEncoding("5.3e-4");
     ASSERT_TRUE(json == Json::Json(5.3e-4));
-    json = Json::Json::FromString("5.03e+14");
+    json = Json::Json::FromEncoding("5.03e+14");
     ASSERT_TRUE(json == Json::Json(5.03e+14));
-    json = Json::Json::FromString("5E+0");
+    json = Json::Json::FromEncoding("5E+0");
     ASSERT_TRUE(json == Json::Json(5E+0));
 }
+
