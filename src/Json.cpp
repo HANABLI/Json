@@ -302,8 +302,15 @@ namespace
                  options.escapeNonAscii
                  && (cp > 0x7F)
             ) {
-                output += "\\u";
-                output += CodePointToFourHexDigits(cp);
+                if (cp > 0xFFFF) {
+                    output += "\\u";
+                    output += CodePointToFourHexDigits(0xD800 + (((cp - 0x10000) >> 10) & 0x3FF));
+                    output += "\\u";
+                    output += CodePointToFourHexDigits(0xDC00 + ((cp -0x10000) & 0x3FF));
+                } else {
+                    output += "\\u";
+                    output += CodePointToFourHexDigits(cp);
+                }
             } else {
                 const auto encoding = encoder.Encode({cp});
                 output += std::string(
@@ -328,6 +335,7 @@ namespace
         Utf8::Utf8 decoder, encoder;
         std::string output;
         Utf8::UnicodeCodePoint cpFromHexDigits = 0;
+        Utf8::UnicodeCodePoint firstHalfOfSurrogatePair = 0;
         std::vector< Utf8::UnicodeCodePoint > hexDigitOriginal;
         size_t state = 0;
         for (const auto cp: decoder.Decode(s)) {
@@ -336,12 +344,16 @@ namespace
                 case 0: { // initial state 
                     if((0x5C == cp)) {
                         state = 1;
-                    } else {
+                    } else if (firstHalfOfSurrogatePair == 0) {
                         const auto encoding = encoder.Encode({cp});
                         output += std::string(
                             encoding.begin(),
                             encoding.end()
                         );
+                    } else {
+                        // TODO: we should reject the sring as an 
+                        // invalid encoding.
+                        firstHalfOfSurrogatePair = 0;
                     }
                 } break;
 
@@ -350,7 +362,7 @@ namespace
                         state = 2;
                         cpFromHexDigits = 0;
                         hexDigitOriginal = { 0x5C, 0x75 };
-                    } else {
+                    } else if (firstHalfOfSurrogatePair == 0) {
                         Utf8::UnicodeCodePoint alterantive = cp;
                         const auto entry = POPULAR_CHARACTERS_ESCAPED.find(cp);
                         if (entry == POPULAR_CHARACTERS_ESCAPED.end()) {
@@ -367,6 +379,10 @@ namespace
                             );
                         }
                         state = 0;
+                    } else {
+                        // TODO: we should reject the sring as an 
+                        // invalid encoding.
+                        firstHalfOfSurrogatePair = 0;
                     }
                 } break;
 
@@ -392,6 +408,8 @@ namespace
                     ) {
                         cpFromHexDigits += (cp - (Utf8::UnicodeCodePoint)'a' + 10);
                     } else {
+                        // TODO: we should reject the sring as an 
+                        // invalid encoding.
                         state = 0;
                         const auto encoding = encoder.Encode(hexDigitOriginal);
                         output += std::string(
@@ -402,17 +420,44 @@ namespace
                     }
                     if (++state == 6) {
                         state = 0;
-                        const auto encoding = encoder.Encode({cpFromHexDigits});
-                        output += std::string(
-                            encoding.begin(),
-                            encoding.end()
-                        );
+                        if (
+                            (cpFromHexDigits >= 0xd800)
+                            && (cpFromHexDigits <= 0xDFFF)
+                        ) {
+                            if (firstHalfOfSurrogatePair == 0) {
+                                firstHalfOfSurrogatePair = cpFromHexDigits;
+                            } else {
+                                const auto secondHalfOfSurrogatePair = cpFromHexDigits;
+                                const auto encoding = encoder.Encode({
+                                    ((firstHalfOfSurrogatePair - 0xD800) << 10)
+                                    +  (secondHalfOfSurrogatePair - 0xDC00)
+                                    + 0x10000   
+                                });
+                                output += std::string(
+                                    encoding.begin(),
+                                    encoding.end()
+                                );
+                                firstHalfOfSurrogatePair = 0;
+                            }
+                        } else if (firstHalfOfSurrogatePair == 0) {
+                            const auto encoding = encoder.Encode({cpFromHexDigits});
+                            output += std::string(
+                                encoding.begin(),
+                                encoding.end()
+                            );
+                        } else {
+                            // TODO: we should reject the sring as an 
+                            // invalid encoding.
+                            firstHalfOfSurrogatePair = 0;
+                        }
                     }
                 } break;
             }          
         }
         switch (state)
         {
+            // TODO: we should reject the sring as an 
+            // invalid encoding.
             case 1: { //escape character
                 const auto encoding = encoder.Encode({0x5C});
                 output += std::string(
@@ -634,9 +679,9 @@ namespace Json{
         } else if (
             !encoding.empty()
             && (encoding[0] == '"')
-            && (encoding[encoding.size() - 1] == '"')
+            && (encoding[encoding.length() - 1] == '"')
         ) {
-            return Unescape(encoding.substr(1, encoding.size() - 2));
+            return Unescape(encoding.substr(1, encoding.length() - 2));
         } else if (encoding == "null") {
             return nullptr;
         } else if (encoding == "true") {

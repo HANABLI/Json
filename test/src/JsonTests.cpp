@@ -154,3 +154,19 @@ TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {
     ASSERT_TRUE(json == Json::Json(5E+0));
 }
 
+TEST(JsonTests, JsonTests_SurrogatePairEncoding_Test) {
+    Json::Json json(std::string("This should be encoded as a UTF-16 surrogate pair: 𣎴"));
+    Json::JsonEncodingOptions options;
+    options.escapeNonAscii = true;
+    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD84C\\uDFB4\"", json.ToEncoding(options));
+    json = Json::Json(std::string("This should be encoded as a UTF-16 surrogate pair: 💩"));
+    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD83D\\uDCA9\"", json.ToEncoding(options));
+}
+
+TEST(JsonTests, JsonTests_SurrogatePairDecoding_Test) {
+    std::string encoding("\"This should be encoded as a UTF-16 surrogate pair: \\uD84C\\uDFB4\"");
+    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 𣎴", (std::string)Json::Json::FromEncoding(encoding));
+    encoding = "\"This should be encoded as a UTF-16 surrogate pair: \\uD83D\\uDCA9\"";
+    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 💩", (std::string)Json::Json::FromEncoding(encoding));
+
+}
