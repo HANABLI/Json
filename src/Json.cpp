@@ -29,219 +29,6 @@ namespace
     };
 
     /**
-     * This function parses the given string as an integer JSON value
-     * 
-     * @param[in] s
-     *      This is the string to parse.
-     * 
-     * @return
-     *      The parsed JSON value is returned.
-     */
-    Json::Json ParseInteger(const std::string& s) {
-        size_t index = 0;
-        size_t state = 0;
-        bool negative = false;
-        int value = 0;
-        while (index < s.length()) {
-            switch (state)
-            {
-                case 0: {
-                    if (s[index] == '-') {
-                        negative = true;
-                        ++index;
-                    }
-                    state = 1;
-                } break;
-
-                case 1: { // zero / 1-9
-                    if (s[index] == '0') {
-                        state = 2;
-                    } else if (
-                        (s[index] >= '1')
-                        && (s[index] <= '9')
-                    ) {
-                        state = 3;
-                        value = (int)(s[index] - '0');
-                    } else {
-                        return Json::Json();
-                    }
-                    ++index;
-                } break;
-
-                case 2: {
-                    return Json::Json();
-                } break;
-
-                case 3: {
-                    if (
-                        (s[index] >= '0')
-                        && (s[index] <= '9')
-                    ) {
-                                                const int previousValue = value;
-                        value *= 10;
-                        value += (int)(s[index] - '0');
-                        if (value / 10 != previousValue) {
-                            return Json::Json();
-                        }
-                        ++index;
-                    } else {
-                        return Json::Json();
-                    }
-                } break;
-            }
-        }
-        if (state < 2) {
-            return Json::Json();
-        } else {
-            return Json::Json(value * (negative ? -1 : 1));
-        }       
-    }
-
-    /**
-     * This function parses the given string as a floating point JSON value
-     * 
-     * @param[in] s
-     *      This is the string to parse.
-     * 
-     * @return
-     *      The parsed JSON value is returned.
-     */
-    Json::Json ParseFloatingPoint(const std::string& s) {
-        size_t index = 0;
-        size_t state = 0;
-        bool negativeMagnitude = false;
-        bool negativeExponent = false;
-        double magnitude = 0;
-        double exponent = 0.0;
-        double fraction = 0.0;
-        size_t fractionDigits = 0;
-        while (index < s.length()) {
-            switch (state)
-            {
-                case 0: {
-                    if (s[index] == '-') {
-                        negativeMagnitude = true;
-                        ++index;
-                    }
-                    state = 1;
-                } break;
-
-                case 1: { // zero / 1-9
-                    if (s[index] == '0') {
-                        state = 2;
-                    } else if (
-                        (s[index] >= '1')
-                        && (s[index] <= '9')
-                    ) {
-                        state = 3;
-                        magnitude = (int)(s[index] - '0');
-                    } else {
-                        return Json::Json();
-                    }
-                    ++index;
-                } break;
-
-                case 2: {
-                    return Json::Json();
-                } break;
-
-                case 3: { // *DIGIT / . / e / E
-                    if (
-                        (s[index] >= '0')
-                        && (s[index] <= '9')
-                    ) {
-                        magnitude *= 10.0;
-                        magnitude += (double)(s[index] - '0');
-                    } else if (s[index] == '.') {
-                        state = 4;
-                    } else if ((s[index] == 'e') || (s[index] == 'E')) {
-                        state = 6;
-                    } else {
-                        return Json::Json();
-                    }
-                    ++index;
-                } break;
-
-                case 4: { // frac: DIGIT
-                    if (
-                        (s[index] >= '0')
-                        && (s[index] <= '9')
-                    ) {
-                        ++fractionDigits;
-                        fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
-                    } else {
-                        return Json::Json();
-                    }
-                    state = 5;
-                    ++index;
-                } break;
-
-                case 5: { // frac: *DIGIT / e / E
-                    if (
-                        (s[index] >= '0')
-                        && (s[index] <= '9')
-                    ) {
-                        ++fractionDigits;
-                        fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
-                    } else if (
-                        (s[index] == 'e') 
-                        || (s[index] == 'E')
-                    ) {
-                        state = 6;
-                    } else {
-                        return Json::Json();
-                    }
-                    ++index;
-                } break;
-
-                case 6: { // exp: [minus/plus] / DIGIT
-                    if (s[index] == '-') {
-                        negativeExponent = true;
-                        ++index;
-                    } else if (s[index] == '+') {
-                        ++index;
-                    } else {
-
-                    }
-                    state = 7;
-                } break;
-
-                case 7: { // exp: DIGIT
-                    state = 8;
-                } break;
-
-                case 8: { // exp: *DIGIT
-                     if (
-                        (s[index] >= '0')
-                        && (s[index] <= '9')
-                    ) {
-                        exponent *= 10.0;
-                        exponent += (double)(s[index] - '0');
-                    } else {
-                        return Json::Json();
-                    }
-                    ++index;
-                } break;
-            }
-        }
-        if (
-            (state < 2)
-            || (state == 4)
-            || (state == 6)
-            || (state == 7)
-        ) {
-            return Json::Json();
-        } else {
-            return Json::Json(
-                (
-                    magnitude
-                    + fraction
-                )
-                * pow(10.0, exponent * (negativeExponent ? -1.0 : 1.0)) 
-                * (negativeExponent ? -1.0 : 1.0));
-        }       
-    }
-    /**
      * This string returns a string consisting of the four hex digits
      * matching the given code point in hexadecimal.
      * 
@@ -327,13 +114,15 @@ namespace
      * 
      * @param[in] s
      *      This is the string which needs to be unescaped.
+     * @param[out] output
+     *      This is where to put the unscaped string.
      * 
      * @return
-     *      The unescaped string is returned.
+     *      An indication of whether or not the input string was a valid
+     *      encoding is returned.
      */
-    std::string Unescape(const std::string& s) {
+    bool Unescape(const std::string& s, std::string& output) {
         Utf8::Utf8 decoder, encoder;
-        std::string output;
         Utf8::UnicodeCodePoint cpFromHexDigits = 0;
         Utf8::UnicodeCodePoint firstHalfOfSurrogatePair = 0;
         std::vector< Utf8::UnicodeCodePoint > hexDigitOriginal;
@@ -351,9 +140,7 @@ namespace
                             encoding.end()
                         );
                     } else {
-                        // TODO: we should reject the sring as an 
-                        // invalid encoding.
-                        firstHalfOfSurrogatePair = 0;
+                        return false;
                     }
                 } break;
 
@@ -366,11 +153,7 @@ namespace
                         Utf8::UnicodeCodePoint alterantive = cp;
                         const auto entry = POPULAR_CHARACTERS_ESCAPED.find(cp);
                         if (entry == POPULAR_CHARACTERS_ESCAPED.end()) {
-                            const auto encoding = encoder.Encode({0x5C, cp});
-                            output += std::string(
-                                encoding.begin(),
-                                encoding.end()
-                            );
+                            return false;
                         } else {
                             const auto encoding = encoder.Encode({entry->second});
                             output += std::string(
@@ -380,9 +163,7 @@ namespace
                         }
                         state = 0;
                     } else {
-                        // TODO: we should reject the sring as an 
-                        // invalid encoding.
-                        firstHalfOfSurrogatePair = 0;
+                        return false;
                     }
                 } break;
 
@@ -408,15 +189,7 @@ namespace
                     ) {
                         cpFromHexDigits += (cp - (Utf8::UnicodeCodePoint)'a' + 10);
                     } else {
-                        // TODO: we should reject the sring as an 
-                        // invalid encoding.
-                        state = 0;
-                        const auto encoding = encoder.Encode(hexDigitOriginal);
-                        output += std::string(
-                            encoding.begin(),
-                            encoding.end()
-                        );
-                        break;
+                        return false;
                     }
                     if (++state == 6) {
                         state = 0;
@@ -446,38 +219,19 @@ namespace
                                 encoding.end()
                             );
                         } else {
-                            // TODO: we should reject the sring as an 
-                            // invalid encoding.
-                            firstHalfOfSurrogatePair = 0;
+                            return false;
                         }
                     }
                 } break;
             }          
         }
-        switch (state)
-        {
-            // TODO: we should reject the sring as an 
-            // invalid encoding.
-            case 1: { //escape character
-                const auto encoding = encoder.Encode({0x5C});
-                output += std::string(
-                    encoding.begin(),
-                    encoding.end()
-                );
-            } break;
-
-            case 2: // first hexdigit of escape uXXXX
-            case 3: // second hexdigit of escape uXXXX
-            case 4: // third hexdigit of escape uXXXX
-            case 5: { // fourth hexdigit of escape uXXXX
-                const auto encoding = encoder.Encode(hexDigitOriginal);
-                output += std::string(
-                    encoding.begin(),
-                    encoding.end()
-                );
-            } break;
-        }
-        return output;
+        return (
+            (state != 1)
+            && (
+                (state < 2)
+                || (state > 5)
+            )
+        );
     }
 } // namespace 
 
@@ -513,6 +267,11 @@ namespace Json{
             double floatValue;
 
         };
+        
+        /**
+         * This is a cache of the encoding of the value.
+         */
+        std::string encoding;
 
         // Lifecycle management
 
@@ -537,6 +296,214 @@ namespace Json{
          * This is the default constructor.
          */
         Impl() = default;
+        
+        /**
+         * This function parses the given string as an integer JSON value
+         * 
+         * @param[in] s
+         *      This is the string to parse.
+         */
+        void ParseToInteger(const std::string& s) {
+            size_t index = 0;
+            size_t state = 0;
+            bool negative = false;
+            int value = 0;
+            while (index < s.length()) {
+                switch (state)
+                {
+                    case 0: {
+                        if (s[index] == '-') {
+                            negative = true;
+                            ++index;
+                        }
+                        state = 1;
+                    } break;
+
+                    case 1: { // zero / 1-9
+                        if (s[index] == '0') {
+                            state = 2;
+                        } else if (
+                            (s[index] >= '1')
+                            && (s[index] <= '9')
+                        ) {
+                            state = 3;
+                            value = (int)(s[index] - '0');
+                        } else {
+                            return;
+                        }
+                        ++index;
+                    } break;
+
+                    case 2: {
+                        return;
+                    } break;
+
+                    case 3: {
+                        if (
+                            (s[index] >= '0')
+                            && (s[index] <= '9')
+                        ) {
+                            const int previousValue = value;
+                            value *= 10;
+                            value += (int)(s[index] - '0');
+                            if (value / 10 != previousValue) {
+                                return;
+                            }
+                            ++index;
+                        } else {
+                            return;
+                        }
+                    } break;
+                }
+            }
+            if (state >= 2) {
+                type = Type::Integer;
+                integerValue = (value * (negative ? -1 : 1));
+            }       
+        }
+        /**
+         * This function parses the given string as a floating point JSON value
+         * 
+         * 
+         * @param[in] s
+         *      This is the string to parse.
+         * 
+         */
+        void ParseFloatingPoint(const std::string& s) {
+            size_t index = 0;
+            size_t state = 0;
+            bool negativeMagnitude = false;
+            bool negativeExponent = false;
+            double magnitude = 0;
+            double exponent = 0.0;
+            double fraction = 0.0;
+            size_t fractionDigits = 0;
+            while (index < s.length()) {
+                switch (state)
+                {
+                    case 0: {
+                        if (s[index] == '-') {
+                            negativeMagnitude = true;
+                            ++index;
+                        }
+                        state = 1;
+                    } break;
+
+                    case 1: { // zero / 1-9
+                        if (s[index] == '0') {
+                            state = 2;
+                        } else if (
+                            (s[index] >= '1')
+                            && (s[index] <= '9')
+                        ) {
+                            state = 3;
+                            magnitude = (int)(s[index] - '0');
+                        } else {
+                            return;
+                        }
+                        ++index;
+                    } break;
+
+                    case 2: {
+                        return;
+                    } break;
+
+                    case 3: { // *DIGIT / . / e / E
+                        if (
+                            (s[index] >= '0')
+                            && (s[index] <= '9')
+                        ) {
+                            magnitude *= 10.0;
+                            magnitude += (double)(s[index] - '0');
+                        } else if (s[index] == '.') {
+                            state = 4;
+                        } else if ((s[index] == 'e') || (s[index] == 'E')) {
+                            state = 6;
+                        } else {
+                            return;
+                        }
+                        ++index;
+                    } break;
+
+                    case 4: { // frac: DIGIT
+                        if (
+                            (s[index] >= '0')
+                            && (s[index] <= '9')
+                        ) {
+                            ++fractionDigits;
+                            fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
+                        } else {
+                            return;
+                        }
+                        state = 5;
+                        ++index;
+                    } break;
+
+                    case 5: { // frac: *DIGIT / e / E
+                        if (
+                            (s[index] >= '0')
+                            && (s[index] <= '9')
+                        ) {
+                            ++fractionDigits;
+                            fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
+                        } else if (
+                            (s[index] == 'e') 
+                            || (s[index] == 'E')
+                        ) {
+                            state = 6;
+                        } else {
+                            return;
+                        }
+                        ++index;
+                    } break;
+
+                    case 6: { // exp: [minus/plus] / DIGIT
+                        if (s[index] == '-') {
+                            negativeExponent = true;
+                            ++index;
+                        } else if (s[index] == '+') {
+                            ++index;
+                        } else {
+
+                        }
+                        state = 7;
+                    } break;
+
+                    case 7: { // exp: DIGIT
+                        state = 8;
+                    } break;
+
+                    case 8: { // exp: *DIGIT
+                        if (
+                            (s[index] >= '0')
+                            && (s[index] <= '9')
+                        ) {
+                            exponent *= 10.0;
+                            exponent += (double)(s[index] - '0');
+                        } else {
+                            return;
+                        }
+                        ++index;
+                    } break;
+                }
+            }
+            if (
+                (state >= 2)
+                && (state != 4)
+                && (state != 6)
+                && (state != 7)
+            ) {
+                type = Type::Float;
+                floatValue = (
+                    (
+                        magnitude
+                        + fraction
+                    )
+                    * pow(10.0, exponent * (negativeExponent ? -1.0 : 1.0)) 
+                    * (negativeExponent ? -1.0 : 1.0)
+                );
+            }       
+        }
     };
 
     Json::~Json() = default;
@@ -581,6 +548,9 @@ namespace Json{
             return false;
         } else switch (impl_->type)
         {
+            case Impl::Type::Invalid:
+                return true;
+                break;
             case Impl::Type::Null:
                 return true;
                 break;
@@ -640,61 +610,92 @@ namespace Json{
     }
 
     std::string Json::ToEncoding(const JsonEncodingOptions& options) const {
-        switch (impl_->type)
-        {
-        case Impl::Type::Null:
-            return "null";
-            break;
-        case Impl::Type::Boolean:
-            return impl_->booleanValue ? "true" : "false";
-            break;
-        case Impl::Type::String:
-            return ( "\"" + Escape(*impl_->stringValue, options) + "\"");
-            break;
-        case Impl::Type::Integer:
-            return StringUtils::sprintf("%i", impl_->integerValue);
-            break;
-        case Impl::Type::Float:
-            return StringUtils::sprintf("%lg", impl_->floatValue);
-            break;
-        default:
-            return "???";
-            break;
+        if (impl_->type == Impl::Type::Invalid) {
+            return StringUtils::sprintf(
+                "(Invalid JSON: %s)",
+                impl_->encoding.c_str()
+            );
         }
+        if (options.reencode) {
+            impl_->encoding.clear();
+        }
+        if(impl_->encoding.empty()) {
+            switch (impl_->type)
+            {
+            case Impl::Type::Null:
+                impl_->encoding = "null";
+                break;
+            case Impl::Type::Boolean:
+                impl_->encoding = impl_->booleanValue ? "true" : "false";
+                break;
+            case Impl::Type::String:
+                impl_->encoding = ( "\"" + Escape(*impl_->stringValue, options) + "\"");
+                break;
+            case Impl::Type::Integer:
+                impl_->encoding = StringUtils::sprintf("%i", impl_->integerValue);
+                break;
+            case Impl::Type::Float:
+                impl_->encoding = StringUtils::sprintf("%lg", impl_->floatValue);
+                break;
+            default:
+                impl_->encoding = "???";
+                break;
+            }
+        }
+        return impl_->encoding;
     }
 
-    Json Json::FromEncoding(const std::string& encoding) {        
+    Json Json::FromEncoding(const std::string& encoding) {       
+        Json json;
+        json.impl_->encoding = encoding; 
         if (
-            !encoding.empty()
-            && (encoding[0] == '{')
+            encoding.empty()) {
+            
+        } else if (
+            (encoding[0] == '{')
         ) {
             // TODO: parse as an object
-            return Json();
+           
         } else if (
             !encoding.empty()
             && (encoding[0] == '[')
         ) {
             // TODO: parse as an array
-            return Json();
         } else if (
             !encoding.empty()
             && (encoding[0] == '"')
             && (encoding[encoding.length() - 1] == '"')
         ) {
-            return Unescape(encoding.substr(1, encoding.length() - 2));
+            std::string output;
+            if (
+                Unescape(encoding.substr(1, encoding.length() - 2), output)
+            ) {
+                json.impl_->type = Impl::Type::String;
+                json.impl_->stringValue = new std::string(output);
+            } 
         } else if (encoding == "null") {
-            return nullptr;
+            json.impl_->type = Impl::Type::Null;
         } else if (encoding == "true") {
-            return true;
+            json.impl_->type = Impl::Type::Boolean;
+            json.impl_->booleanValue = true;
         } else if  (encoding == "false") {
-            return false;
+            json.impl_->type = Impl::Type::Boolean;
+            json.impl_->booleanValue = false;
         } else {
             if (encoding.find_first_of(".eE") != std::string::npos) {
                 // TODO: parse as floating point
-                return ParseFloatingPoint(encoding);
+                json.impl_->ParseFloatingPoint(encoding);
             } else {
-                return ParseInteger(encoding);
+                json.impl_->ParseToInteger(encoding);
             }
         }
+        return json; 
+    }
+
+    void PrintTo(
+        const Json& json,
+        std::ostream* os
+    ) {
+        *os << json.ToEncoding();
     }
 }

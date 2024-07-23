@@ -26,6 +26,13 @@ namespace Json
          * object into its string format.
          */
         bool escapeNonAscii = false;
+
+        /**
+         * This flag indicates whether or not to disregard
+         * any cached encoding when asked to provide an
+         * encoding.
+         */
+        bool reencode = false;
     };
     /**
      * This class represent a data structure that was parsed
@@ -222,7 +229,22 @@ namespace Json
         */       
         std::unique_ptr<struct Impl> impl_;
     };
-    
+
+    /**
+     * This is a support function for Google Test to print out
+     * a Json value.
+     * 
+     * @param[in] json
+     *      This is the JSON value to print.
+     * 
+     * @param[in] os
+     *      This points to the stream to which to print the
+     *      server request state value.
+     */
+    void PrintTo(
+        const Json& json,
+        std::ostream* os
+    );
     
 } // namespace Json
 
