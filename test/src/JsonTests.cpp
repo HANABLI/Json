@@ -176,3 +176,43 @@ TEST(JsonTests, JsonTests_EncodingOfInvalidJson_Test) {
     auto json = Json::Json::FromEncoding("\"This is bad: \\u123X\"");
     ASSERT_EQ("(Invalid JSON: \"This is bad: \\u123X\")", json.ToEncoding());
 }
+
+TEST(JsonTests, JsonTests_ArrayDecoding_Test) {
+    const std::string encoding("[1,\"Hello\",true]");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_TRUE(json.GetType() == Json::Json::Type::Array);
+    ASSERT_EQ(3, json.GetSize());
+    EXPECT_TRUE(json[0]->GetType() == Json::Json::Type::Integer);
+    EXPECT_EQ(1, (int)*json[0]);
+    EXPECT_TRUE(json[1]->GetType() == Json::Json::Type::String);
+    EXPECT_EQ("Hello", (std::string)*json[1]);
+    EXPECT_TRUE(json[2]->GetType() == Json::Json::Type::Boolean);
+    EXPECT_EQ(true, (bool)*json[2]);
+}
+
+TEST(JsonTests, JsonTests_DecodeUnterminatedOuterArray_Test) {
+    const std::string encoding("[1, \"Hello\", true");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
+}
+
+TEST(JsonTests, JsonTests_DecodeUnterminatedInnerString_Test) {
+    const std::string encoding("[1,\"Hello, true");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
+} 
+
+TEST(JsonTests, JsonTests_ArraysWhithernsArray_Test) {
+    const std::string encoding("[1,[1,2],true]");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_TRUE(json.GetType() == Json::Json::Type::Array);
+    ASSERT_EQ(3, json.GetSize());
+    EXPECT_TRUE(json[0]->GetType() == Json::Json::Type::Integer);
+    EXPECT_EQ(1, (int)*json[0]);
+    EXPECT_TRUE((*json[1])[0]->GetType() == Json::Json::Type::Integer);
+    EXPECT_EQ(1, (int)*(*json[1])[0]);
+    EXPECT_TRUE((*json[1])[1]->GetType() == Json::Json::Type::Integer);
+    EXPECT_EQ(2, (int)*(*json[1])[1]);
+    EXPECT_TRUE(json[2]->GetType() == Json::Json::Type::Boolean);
+    EXPECT_EQ(true, (bool)*json[2]);
+}

@@ -44,6 +44,19 @@ namespace Json
     {
 
     public:
+        /* data */ 
+        /**
+         * These are the different kinds of values of a JSON object.
+         */
+        enum class Type {
+            Invalid,
+            Null,
+            Boolean,
+            String,
+            Integer,
+            Float,
+            Array,
+        };
 
     // Life Cycle Management
     public:
@@ -178,7 +191,35 @@ namespace Json
          */
         operator double() const;
 
-        
+        /**
+         * This method returns the element at the given index of the JSON value,
+         * if it's an array.
+         * 
+         * @return
+         *      The element at the given index of the JSON value is returned.
+         * 
+         * @retval
+         *      This is returned if there is no element at the given index
+         *      of the JSON value, or if the JSON value isn't an array.
+         */
+        std::shared_ptr< Json > operator[](size_t index) const ;
+
+        /**
+         * This method return the type of the JSON value.
+         * 
+         * @return
+         *      the type of the JSON value is returned.
+         */
+        Type GetType() const;
+
+        /**
+         * This method return the size of the JSON value.
+         * 
+         * @return
+         *      the size of the JSON value is returned.
+         */
+        size_t GetSize() const;
+
         /**
          * This encode a JSON object into its string format.
          * 
@@ -239,10 +280,26 @@ namespace Json
      * 
      * @param[in] os
      *      This points to the stream to which to print the
-     *      server request state value.
+     *      json value.
      */
     void PrintTo(
         const Json& json,
+        std::ostream* os
+    );
+
+    /**
+     * This is a support function for Google Test to print out
+     * a Json Type.
+     * 
+     * @param[in] json
+     *      This is the JSON type to print.
+     * 
+     * @param[in] os
+     *      This points to the stream to which to print the
+     *      json type value.
+     */
+    void PrintTo(
+        Json::Type& type,
         std::ostream* os
     );
     
