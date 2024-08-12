@@ -17,6 +17,12 @@
 namespace 
 {   
     /**
+     * Thes are the characters that are considered "whitespace"
+     * by the JSON standard (RFC 7159).
+     */
+    constexpr const char* WHITESPACE_CHARACTERS = " \t\r\n";
+
+    /**
      * These are the characters that must be escaped in a quoted
      * string in JSON.
      */
@@ -747,8 +753,17 @@ namespace Json{
         return impl_->encoding;
     }
 
-    Json Json::FromEncoding(const std::string& encoding) {       
+    Json Json::FromEncoding(const std::string& stringFormat) {       
         Json json;
+        const auto firstNonWhitespaceChar = stringFormat.find_first_not_of(WHITESPACE_CHARACTERS);
+        if (firstNonWhitespaceChar == std::string::npos) {
+            return json;
+        }
+        const auto lastNonWhitespaceChar = stringFormat.find_last_not_of(WHITESPACE_CHARACTERS);
+        const auto encoding = stringFormat.substr(
+            firstNonWhitespaceChar,
+            lastNonWhitespaceChar - firstNonWhitespaceChar + 1
+        );
         json.impl_->encoding = encoding; 
         if (encoding.empty()) {
             

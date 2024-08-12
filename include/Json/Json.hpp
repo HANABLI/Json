@@ -236,7 +236,7 @@ namespace Json
          * This method returns a new JSON object constructed by parsing
          * the JSON object from the given string.
          * 
-         * @param[in] format
+         * @param[in] stringFormat
          *      This is the string format of the JSON object to construct.
          */
         static Json FromEncoding(const std::string& stringFormat);

@@ -216,3 +216,10 @@ TEST(JsonTests, JsonTests_ArraysWhithernsArray_Test) {
     EXPECT_TRUE(json[2]->GetType() == Json::Json::Type::Boolean);
     EXPECT_EQ(true, (bool)*json[2]);
 }
+
+TEST(JsonTests, JsonTests_DecodeArrayWithWhiteSpace_Test) {
+    const std::string encoding(" [ 1 ,\r \t \"Hello\" \r\n ,\n true ] ");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_TRUE(json.GetType() == Json::Json::Type::Array);
+    ASSERT_EQ(3, json.GetSize());
+} 
