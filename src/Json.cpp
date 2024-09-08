@@ -8,6 +8,7 @@
  */
 
 #include <map>
+#include <vector>
 #include <stack>
 #include <memory>
 #include <Utf8/Utf8.hpp>
@@ -260,9 +261,9 @@ namespace Json{
             bool booleanValue;
             std::string* stringValue;
             std::vector< std::shared_ptr< Json >>* arrayValue;
+            std::map< std::string, std::shared_ptr< Json >>* objectValue;
             int integerValue;
             double floatValue;
-
         };
         
         /**
@@ -517,11 +518,15 @@ namespace Json{
          *      On output, this is the position of the first character
          *      past the end of the encoded value in the string, or
          *      std::string::npos if the encoded value was invalid.
+         * @param[in] delimiter
+         *      This is the character that marks the end of the value
+         *      if it's encountered.
+         * 
          * @return
          *      The encoding of the next JSON value in the given string
          *      is returned. 
          */
-        std::string ParseValue(const std::string& s, size_t& offset) {
+        std::string ParseValue(const std::string& s, size_t& offset, char delimiter) {
             Utf8::Utf8 decoder, encoder;
             std::stack< char > expectedDelimiters; 
             std::vector< Utf8::UnicodeCodePoint > encodedValueCodePoints; 
@@ -548,7 +553,7 @@ namespace Json{
                     } else if (cp == (Utf8::UnicodeCodePoint)'[') {
                         expectedDelimiters.push(']');
                     } else if (
-                        (cp == (Utf8::UnicodeCodePoint)',')
+                        (cp == (Utf8::UnicodeCodePoint)delimiter)
                         && expectedDelimiters.empty()
                     ) { 
                         break;
@@ -558,7 +563,7 @@ namespace Json{
             if (expectedDelimiters.empty()) {
                 auto encodedValue = encoder.Encode(encodedValueCodePoints);
                 offset += encodedValue.size();
-                if (encodedValue.back() == (Utf8::UnicodeCodePoint)',') {
+                if (encodedValue.back() == (Utf8::UnicodeCodePoint)delimiter) {
                     encodedValue.pop_back();
                 }
                 return std::string(
@@ -582,7 +587,7 @@ namespace Json{
             size_t offset = 0;
             std::vector< std::shared_ptr< Json > > newArrayValue;
             while (offset < s.length()) {
-                const auto encodedValue = ParseValue(s, offset);
+                const auto encodedValue = ParseValue(s, offset, ',');
                 if (offset == std::string::npos) {
                     return;
                 }
@@ -591,6 +596,37 @@ namespace Json{
             }
             type = Type::Array;
             arrayValue = new decltype(newArrayValue)(newArrayValue);
+        }
+
+        /**
+         * This function parses the given string as un object
+         * JSON value.
+         * 
+         * @param[in] s
+         *   This is the string to parse 
+         */
+        void ParseAsObject(const std::string& s) {
+            std::map< std::string, std::shared_ptr< Json > > newObjectValue;
+            size_t offset = 0;
+            while (offset < s.length()) {
+                const auto encodedKey = ParseValue(s, offset, ':');
+                if (offset == std::string::npos) {
+                    return;
+                }
+                const auto key = std::make_shared< Json >(FromEncoding(encodedKey));
+                if (key->GetType() != Type::String) {
+                    return;
+                }
+                const auto encodedValue = ParseValue(s, offset, ',');
+                if (offset == std::string::npos) {
+                    return;
+                }
+                const auto value = std::make_shared< Json >(FromEncoding(encodedValue));
+                newObjectValue[(std::string)*key] = value;
+            }
+            type = Type::Object;
+            objectValue = new decltype(newObjectValue)(newObjectValue);
+            
         }
     };
 
@@ -696,12 +732,36 @@ namespace Json{
             return "";
         }
     }
+
     std::shared_ptr< Json > Json::operator[](size_t index) const {
         if (impl_->type == Type::Array) {
+            if (index >= impl_->arrayValue->size()) {
+                return nullptr;
+            }
             return (*impl_->arrayValue)[index];
         } else {
-            return std::make_shared< Json >();
+            return nullptr;
         }   
+    }
+
+    std::shared_ptr< Json > Json::operator[](int index) const {
+        return (*this)[(size_t)index];
+    }
+
+    std::shared_ptr< Json > Json::operator[](const std::string& key) const {
+        if (impl_->type == Type::Object) {
+            const auto entry = impl_->objectValue->find(key);
+            if (entry == impl_->objectValue->end()) {
+                return nullptr;
+            }
+            return entry->second;
+        } else {
+            return nullptr;
+        }   
+    }
+
+    std::shared_ptr< Json > Json::operator[](const char* key) const {
+        return (*this)[std::string(key)];
     }
 
 
@@ -712,9 +772,19 @@ namespace Json{
     size_t Json::GetSize() const {
         if (impl_->type == Type::Array) {
             return impl_->arrayValue->size();
+        } else if (impl_->type == Type::Object) {
+            return impl_->objectValue->size();
         } else {
             return 0;
         }
+    }
+
+    bool Json::Has(const std::string& key) const {
+        if (impl_->type == Type::Object) {
+            return (impl_->objectValue->find(key) != impl_->objectValue->end());
+        } else {
+            return false;
+        }   
     }
 
     std::string Json::ToEncoding(const JsonEncodingOptions& options) const {
@@ -768,10 +838,13 @@ namespace Json{
         if (encoding.empty()) {
             
         } else if (
-            (encoding[0] == '{')
+            ! encoding.empty()
+            && (encoding[0] == '{')
+            && (encoding[encoding.length() - 1] == '}')
         ) {
-            // TODO: parse as an object
-           
+            json.impl_->ParseAsObject(
+                encoding.substr(1, encoding.length() - 2)
+            );          
         } else if (
             !encoding.empty()
             && (encoding[0] == '[')
@@ -837,6 +910,9 @@ namespace Json{
             break;
         case Json::Type::Array:
             *os << "Array";
+            break;
+        case Json::Type::Object:
+            *os << "Object";
             break;
         default:
             *os << "???";

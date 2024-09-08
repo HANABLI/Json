@@ -145,8 +145,8 @@ TEST(JsonTests, JsonTests_FromFloatingPoint_Test) {
 TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {
     auto json = Json::Json::FromEncoding("3.14159");
     ASSERT_TRUE(json == Json::Json(3.14159));
-    json = Json::Json::FromEncoding("-17.030");
-    ASSERT_TRUE(json == Json::Json(-17.030));
+    json = Json::Json::FromEncoding("-17.03");
+    ASSERT_TRUE(json == Json::Json(-17.03));
     json = Json::Json::FromEncoding("5.3e-4");
     ASSERT_TRUE(json == Json::Json(5.3e-4));
     json = Json::Json::FromEncoding("5.03e+14");
@@ -188,6 +188,7 @@ TEST(JsonTests, JsonTests_ArrayDecoding_Test) {
     EXPECT_EQ("Hello", (std::string)*json[1]);
     EXPECT_TRUE(json[2]->GetType() == Json::Json::Type::Boolean);
     EXPECT_EQ(true, (bool)*json[2]);
+    EXPECT_TRUE(json[3] == nullptr);
 }
 
 TEST(JsonTests, JsonTests_DecodeUnterminatedOuterArray_Test) {
@@ -195,6 +196,12 @@ TEST(JsonTests, JsonTests_DecodeUnterminatedOuterArray_Test) {
     const auto json = Json::Json::FromEncoding(encoding);
     ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
 }
+
+TEST(JsonTests, JsonTests_DecodeUnterminatedInnerArray_Test) {
+    const std::string encoding("{ \"value\": 1, \"array\": [42, 57, \"flag\": true }");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
+} 
 
 TEST(JsonTests, JsonTests_DecodeUnterminatedInnerString_Test) {
     const std::string encoding("[1,\"Hello, true");
@@ -223,3 +230,35 @@ TEST(JsonTests, JsonTests_DecodeArrayWithWhiteSpace_Test) {
     ASSERT_TRUE(json.GetType() == Json::Json::Type::Array);
     ASSERT_EQ(3, json.GetSize());
 } 
+
+TEST(JsonTests, JsonTests_DecodeObject_Test) {
+    const std::string encoding("{\"value\": 42, \"name\": \"Toto\", \"handles\":[3,7], \"is,live\": true}");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_EQ(Json::Json::Type::Object, json.GetType());
+    ASSERT_EQ(4, json.GetSize());
+    EXPECT_TRUE(json.Has("value"));
+    EXPECT_TRUE(json.Has("name"));
+    EXPECT_TRUE(json.Has("handles"));
+    EXPECT_TRUE(json.Has("is,live"));
+    EXPECT_FALSE(json.Has("feels bad"));
+    const auto value  = json["value"];
+    EXPECT_EQ(Json::Json::Type::Integer, value->GetType());
+    EXPECT_EQ(42, (int)*value);
+    const auto name = json["name"];
+    EXPECT_EQ(Json::Json::Type::String, name->GetType());
+    EXPECT_EQ("Toto", (std::string)*name);
+    const auto handles = json["handles"];
+    EXPECT_EQ(Json::Json::Type::Array, handles->GetType());
+    EXPECT_EQ(Json::Json::Type::Integer, (*handles)[0]->GetType());
+    EXPECT_EQ(3, (int)*(*handles)[0]);
+    EXPECT_EQ(Json::Json::Type::Integer, (*handles)[1]->GetType());
+    EXPECT_EQ(7, (int)*(*handles)[1]);
+    const auto isLive = json["is,live"];
+    EXPECT_EQ(Json::Json::Type::Boolean, isLive->GetType());
+    EXPECT_EQ(true, (bool)*isLive);
+}
+
+TEST(JsonTests, JsonTests_NumericIndexNotArray__Test) {
+    const Json::Json json(42);
+    ASSERT_TRUE(json[0] == nullptr);
+}

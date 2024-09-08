@@ -56,6 +56,7 @@ namespace Json
             Integer,
             Float,
             Array,
+            Object
         };
 
     // Life Cycle Management
@@ -195,14 +196,67 @@ namespace Json
          * This method returns the element at the given index of the JSON value,
          * if it's an array.
          * 
+         * @param[in] index 
+         *      This is the position, relative to the front of the array
+         *      of the element to return.
+         * 
          * @return
          *      The element at the given index of the JSON value is returned.
          * 
-         * @retval
+         * @retval nullptr
          *      This is returned if there is no element at the given index
          *      of the JSON value, or if the JSON value isn't an array.
          */
         std::shared_ptr< Json > operator[](size_t index) const ;
+
+        /**
+         * This method returns the element at the given index of the JSON value,
+         * if it's an array.
+         * 
+         * @param[in] index 
+         *      This is the position, relative to the front of the array
+         *      of the element to return.
+         * 
+         * @return
+         *      The element at the given index of the JSON value is returned.
+         * 
+         * @retval nullptr
+         *      This is returned if there is no element at the given index
+         *      of the JSON value, or if the JSON value isn't an array.
+         */
+        std::shared_ptr< Json > operator[](int index) const ;
+
+        /**
+         * This method returns the element with the given name in the JSON value,
+         * if it's an object.
+         * 
+         * @param[in] key 
+         *      This is the name of the element to return.
+         * 
+         * @return
+         *      The element at the given name in the JSON value is returned.
+         * 
+         * @retval nullptr
+         *      This is returned if there is no element at the given name
+         *      of the JSON value, or if the JSON value isn't an object.
+         */
+        std::shared_ptr< Json > operator[](const std::string& key) const ;
+
+        /**
+         * This method returns the element with the given name in the JSON value,
+         * if it's an object.
+         * 
+         * @param[in] key 
+         *      This is the name of the element to return.
+         * 
+         * @return
+         *      The element at the given name in the JSON value is returned.
+         *  
+         * @retval nullptr
+         *      This is returned if there is no element at the given name
+         *      of the JSON value, or if the JSON value isn't an object.
+         */
+        std::shared_ptr< Json > operator[](const char* key) const ;
 
         /**
          * This method return the type of the JSON value.
@@ -220,6 +274,20 @@ namespace Json
          */
         size_t GetSize() const;
 
+        /**
+         * This method returns an indication of whether or not 
+         * the JSON value is an object with an inner value having 
+         * the given key for a name.
+         * 
+         * @param[in] key
+         *      This is the name of the inner value for which to check.
+         * 
+         * @return
+         *      an indication of whether or not the JSON value is 
+         *      an object with an inner value having the given key 
+         *      for a name is returned.
+         */
+        bool Has(const std::string& key) const;
         /**
          * This encode a JSON object into its string format.
          * 
