@@ -634,8 +634,23 @@ namespace Json{
     Json::Json(Json&&) = default;
     Json& Json::operator=(Json&&) = default;
 
-    Json::Json(): impl_(new Impl) { 
+    Json::Json(Type type): impl_(new Impl) { 
+        impl_->type = type;
+        switch (type) {
+            case Type::String: {
+                impl_->stringValue = new std::string();
+            } break;
 
+            case Type::Array: {
+                impl_->arrayValue = new std::vector< std::shared_ptr< Json >>;
+            } break;
+
+            case Type::Object: {
+                impl_->objectValue = new std::map< std::string, std::shared_ptr< Json >>;
+            } break;
+
+            default: break;
+        }
     }
     
     Json::Json(nullptr_t): impl_(new Impl) {
@@ -764,6 +779,33 @@ namespace Json{
         return (*this)[std::string(key)];
     }
 
+    void Json::Add(Json&& value) {
+        if (impl_->type != Type::Array) {
+            return;
+        } 
+        Insert(std::move(value), impl_->arrayValue->size());
+    }
+
+    void Json::Insert(Json&& value, size_t index) {
+        if (impl_->type != Type::Array) {
+            return;
+        }
+        (void)impl_->arrayValue->insert(
+            impl_->arrayValue->begin() 
+            + std::min(index, impl_->arrayValue->size()
+            ), 
+            std::make_shared< Json >(std::move(value))
+        );
+    }
+
+    void Json::Remove(size_t index) {
+        if (impl_->type != Type::Array) {
+            return;
+        }
+        if (index < impl_->arrayValue->size()) {
+            impl_->arrayValue->erase(impl_->arrayValue->begin() + index);
+        }
+    }
 
     auto Json::GetType() const -> Type  {
         return impl_->type;
@@ -815,6 +857,19 @@ namespace Json{
             case Type::Float:
                 impl_->encoding = StringUtils::sprintf("%lg", impl_->floatValue);
                 break;
+            case Type::Array: {
+                impl_->encoding = '[';
+                bool isFirst = true;
+                for (const auto value: *impl_->arrayValue) {
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        impl_->encoding += ',';
+                    }
+                    impl_->encoding += value->ToEncoding(options);
+                }
+                impl_->encoding += ']';
+            } break;
             default:
                 impl_->encoding = "???";
                 break;
