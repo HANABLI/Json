@@ -283,3 +283,24 @@ TEST(JsonTests, JsonTests_EncodeObjec_Test) {
     json.Remove("number");
     json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true}", json.ToEncoding());
 }
+
+TEST(JsonTests, JsonTests_CompareArrays_Test) {
+    const auto json1 = Json::Json::FromEncoding("[31, 7]");
+    const auto json2 = Json::Json::FromEncoding(" [31, 7]");
+    const auto json3 = Json::Json::FromEncoding(" [32, 6]");
+    EXPECT_EQ(json1, json2);
+    EXPECT_NE(json1, json3);
+    EXPECT_NE(json2, json3);
+}
+
+TEST(JsonTests, JsonTests_CompareObjects_Test) {
+    const auto json1 = Json::Json::FromEncoding("{\"number\":31}");
+    const auto json2 = Json::Json::FromEncoding("{\"number\": 31}");
+    const auto json3 = Json::Json::FromEncoding("{\"number\": 32}");
+    const auto json4 = Json::Json::FromEncoding("{\"number\": 32,\"Hello\": [31, 7]}");
+    const auto json5 = Json::Json::FromEncoding("{\"number\": 32,\"Hello\": [32, 7]}");
+    EXPECT_EQ(json1, json2);
+    EXPECT_NE(json1, json3);
+    EXPECT_NE(json2, json3);  
+    EXPECT_NE(json4, json5);
+}

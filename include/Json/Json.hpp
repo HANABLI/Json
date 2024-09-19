@@ -142,6 +142,18 @@ namespace Json
         bool operator==(const Json& other) const;
 
         /**
+         * This is the inequality compariosn operator.
+         * 
+         * @param[in] other
+         *      This is the object to compare with this one.
+         * 
+         * @return
+         *      An indication of whether or not the two JSON objects are not equal
+         *      is returned.
+         */
+        bool operator!=(const Json& other) const;
+
+        /**
          * This is the typecast to bool operator for the class.
          * 
          * @return

@@ -703,13 +703,51 @@ namespace Json{
                 return impl_->integerValue == other.impl_->integerValue;
                 break;
             case Type::Float:
-                return (fabs(impl_->floatValue - other.impl_->floatValue)
-                    < std::numeric_limits< double >::epsilon());
+                return impl_->floatValue == other.impl_->floatValue;
                 break;
+            case Type::Array: {
+                if (impl_->arrayValue->size() != other.impl_->arrayValue->size()) {
+                    return false;
+                } 
+                for (size_t i = 0; i < impl_->arrayValue->size(); ++i) {
+                    if (*(*impl_->arrayValue)[i] != *(*other.impl_->arrayValue)[i]) {
+                        return false;
+                    }
+                }
+            } return true;
+            case Type::Object: {
+                std::set< std::string > keys;
+                for (const auto& entry: *impl_->objectValue) {
+                    (void)keys.insert(entry.first);
+                }
+                for (const auto& entry: *other.impl_->objectValue) {
+                    const auto otherEntry = keys.find(entry.first);
+                    if (otherEntry == keys.end()) {
+                        return false;
+                    }
+                    (void)keys.erase(entry.first);
+                }
+                if (!keys.empty()) {
+                    return false;
+                }
+                for (auto it = impl_->objectValue->begin();
+                    it != impl_->objectValue->end();
+                    ++it
+                ) {
+                    if (*it->second != *(*other.impl_->objectValue)[it->first]) {
+                        return false;
+                    }
+                }
+            } return true;
+
             default:
                 return true;
                 break;
         }
+    }
+
+    bool Json::operator!=(const Json& other) const {
+        return !(*this == other);
     }
 
     Json::operator bool() const {
