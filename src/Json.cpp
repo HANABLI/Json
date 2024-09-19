@@ -796,6 +796,23 @@ namespace Json{
             ), 
             std::make_shared< Json >(std::move(value))
         );
+        //TODO: clear the encoding
+    }
+
+    void Json::Set(const std::string& key, Json&& value) {
+        if (impl_->type != Type::Object) {
+            return;
+        }
+        (*impl_->objectValue)[key] = std::make_shared<Json>(std::move(value));
+        //TODO: clear the encoding
+    }
+
+    void Json::Remove(const std::string& key) {
+        if (impl_->type != Type::Object) {
+            return;
+        }
+        (void)impl_->objectValue->erase(key);
+        //TODO: clear the encoding
     }
 
     void Json::Remove(size_t index) {
@@ -805,6 +822,7 @@ namespace Json{
         if (index < impl_->arrayValue->size()) {
             impl_->arrayValue->erase(impl_->arrayValue->begin() + index);
         }
+        //TODO: clear the encoding
     }
 
     auto Json::GetType() const -> Type  {
@@ -869,6 +887,22 @@ namespace Json{
                     impl_->encoding += value->ToEncoding(options);
                 }
                 impl_->encoding += ']';
+            } break;
+            case Type::Object: {
+                impl_->encoding = '{';
+                bool isFirst = true;
+                for (const auto& entry: *impl_->objectValue) {
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        impl_->encoding += ',';
+                    }
+                    const Json keyAsJson(entry.first);
+                    impl_->encoding += keyAsJson.ToEncoding(options);
+                    impl_->encoding += ':';
+                    impl_->encoding += entry.second->ToEncoding(options);
+                }
+                impl_->encoding += '}';
             } break;
             default:
                 impl_->encoding = "???";

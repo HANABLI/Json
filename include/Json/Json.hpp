@@ -287,6 +287,26 @@ namespace Json
         void Insert(Json&& value, size_t index);
 
         /**
+         * This method moves the given value to be in the object
+         * under the given key, if the JSON value is an object.
+         * 
+         * @param[in] key
+         *      This is the key under which to move the given value.
+         * @param[in] value
+         *      This is the value to move under the given key.
+         */
+        void Set(const std::string& key, Json&& value);
+
+        /**
+         * This method removes the value at the given key in the object,
+         * if the JSON value is an object.
+         * 
+         * @param[in] key
+         *      This is the key of the value to remove.
+         */
+        void Remove(const std::string& key);
+        
+        /**
          * This method removes the value at the given index of the array,
          * if the JSON value is an array. 
          * 

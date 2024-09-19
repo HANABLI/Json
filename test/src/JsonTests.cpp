@@ -272,3 +272,14 @@ TEST(JsonTests, JsonTests_EncodeArray__Test) {
     json.Remove(1);
     ASSERT_EQ("[\"Hello\",42,3]", json.ToEncoding());
 }
+
+TEST(JsonTests, JsonTests_EncodeObjec_Test) {
+    Json::Json json(Json::Json::Type::Object);
+    json.Set("number", 42);
+    json.Set("Hello", "World");
+    json.Set("PopChamp", true);
+    json.Set("Nullptr", nullptr);
+    json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true,\"number\":42}", json.ToEncoding());
+    json.Remove("number");
+    json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true}", json.ToEncoding());
+}
