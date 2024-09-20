@@ -294,6 +294,53 @@ namespace Json{
          * This is the default constructor.
          */
         Impl() = default;
+
+        /**
+         * This method builds the Json value up as a copy
+         * of another Json value.
+         * 
+         * @param[in] other 
+         *      This is the other json value to copy.
+         */
+        void CopyFrom(const std::unique_ptr< Impl >& other) {
+            type = other->type;
+            switch (type) {
+                case Type::Boolean: {
+                    booleanValue = other->booleanValue;
+                } break;
+
+                case Type::Integer: {
+                    integerValue = other->integerValue;
+                } break;
+
+                case Type::Float: {
+                    floatValue = other->floatValue;
+                } break;
+
+                case Type::String: {
+                    stringValue = new std::string(*other->stringValue);
+                } break;
+
+                case Type::Array: {
+                    arrayValue = new std::vector< std::shared_ptr< Json >>;
+                    arrayValue->reserve(other->arrayValue->size());
+                    for (const auto& otherElement: *other->arrayValue) {
+                        const auto copy = std::make_shared< Json >(*otherElement);
+                        arrayValue->push_back(copy);
+                    }
+                } break;
+
+                case Type::Object: {
+                    objectValue = new std::map< std::string, std::shared_ptr< Json >>;
+                    for (const auto& otherElement: *other->objectValue) {
+                        const auto copy = std::make_shared< Json >(*otherElement.second);
+                        (*objectValue)[otherElement.first] = copy;
+                    }
+                } break;
+
+                default: break;
+            }
+        }
         
         /**
          * This function parses the given string as an integer JSON value
@@ -631,8 +678,17 @@ namespace Json{
     };
 
     Json::~Json() = default;
+    Json::Json(const Json& other) : impl_(new Impl) {
+        impl_->CopyFrom(other.impl_);
+    }
     Json::Json(Json&&) = default;
-    Json& Json::operator=(Json&&) = default;
+    Json& Json::operator=(const Json& other) {
+        if (this != &other) {
+            impl_.reset(new Impl());
+        }
+        return *this;
+    }
+    Json& Json::operator=(Json&&)= default; 
 
     Json::Json(Type type): impl_(new Impl) { 
         impl_->type = type;
@@ -817,14 +873,14 @@ namespace Json{
         return (*this)[std::string(key)];
     }
 
-    void Json::Add(Json&& value) {
+    void Json::Add(const Json& value) {
         if (impl_->type != Type::Array) {
             return;
         } 
-        Insert(std::move(value), impl_->arrayValue->size());
+        Insert(value, impl_->arrayValue->size());
     }
 
-    void Json::Insert(Json&& value, size_t index) {
+    void Json::Insert(const Json& value, size_t index) {
         if (impl_->type != Type::Array) {
             return;
         }
@@ -832,16 +888,16 @@ namespace Json{
             impl_->arrayValue->begin() 
             + std::min(index, impl_->arrayValue->size()
             ), 
-            std::make_shared< Json >(std::move(value))
+            std::make_shared< Json >(value)
         );
         //TODO: clear the encoding
     }
 
-    void Json::Set(const std::string& key, Json&& value) {
+    void Json::Set(const std::string& key, const Json& value) {
         if (impl_->type != Type::Object) {
             return;
         }
-        (*impl_->objectValue)[key] = std::make_shared<Json>(std::move(value));
+        (*impl_->objectValue)[key] = std::make_shared<Json>(value);
         //TODO: clear the encoding
     }
 

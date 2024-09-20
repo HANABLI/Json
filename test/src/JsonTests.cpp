@@ -304,3 +304,10 @@ TEST(JsonTests, JsonTests_CompareObjects_Test) {
     EXPECT_NE(json2, json3);  
     EXPECT_NE(json4, json5);
 }
+
+TEST(JsonTests, JsonTests_AddObjectToItSelf__Test) {
+    Json::Json json(Json::Json::Type::Array);
+    json.Add(31);
+    json.Add(json);
+    EXPECT_EQ("[31,[31]]", json.ToEncoding());
+}
