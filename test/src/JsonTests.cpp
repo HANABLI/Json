@@ -311,3 +311,16 @@ TEST(JsonTests, JsonTests_AddObjectToItSelf__Test) {
     json.Add(json);
     EXPECT_EQ("[31,[31]]", json.ToEncoding());
 }
+
+TEST(JsonTests, JsonTests_ReassignValue_Test) {
+    Json::Json json1(31);
+    Json::Json json2(Json::Json::Type::Array);
+    json2.Add(31);
+    json2.Add("Hello");
+    json1 = json2;
+    json1.Add(false);
+    json2.Remove(0);
+    json2.Add(true);
+    EXPECT_EQ("[31,\"Hello\",false]", json1.ToEncoding());
+    EXPECT_EQ("[\"Hello\",true]", json2.ToEncoding());
+}

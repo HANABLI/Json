@@ -694,6 +694,7 @@ namespace Json{
     Json& Json::operator=(const Json& other) {
         if (this != &other) {
             impl_.reset(new Impl());
+            impl_->CopyFrom(other.impl_);
         }
         return *this;
     }
