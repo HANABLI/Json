@@ -11,6 +11,8 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+#include <Utf8/Utf8.hpp>
 
 namespace Json
 {
@@ -380,6 +382,15 @@ namespace Json
          *      This is the string format of the JSON object to construct.
          */
         static Json FromEncoding(const std::string& stringFormat);
+
+                /**
+         * This method returns a new JSON object constructed by parsing
+         * the JSON object from the given string.
+         * 
+         * @param[in] stringFormat
+         *      This is the string format of the JSON object to construct.
+         */
+        static Json FromEncoding(const std::vector< Utf8::UnicodeCodePoint >& stringFormat);
 
         /**
          * This method sets the flag which controls whether or not

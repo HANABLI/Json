@@ -70,8 +70,8 @@ TEST(JsonTests, NotFlotingPointDownCastToFloatingPoint) {
     EXPECT_EQ(0.0, (double)Json::Json(nullptr));
     EXPECT_EQ(0.0, (double)Json::Json(false));
     EXPECT_EQ(0.0, (double)Json::Json(true));
-    EXPECT_EQ(0, (int)Json::Json("42"));
-    EXPECT_EQ(42.0, (int)Json::Json(42.0));
+    EXPECT_EQ(0.0, (int)Json::Json("42"));
+    EXPECT_EQ(42.0, (int)Json::Json(42));
 }
 
 TEST(JsonTests, JsonTests_FromCString_Test) {
@@ -146,7 +146,7 @@ TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {
     auto json = Json::Json::FromEncoding("3.14159");
     ASSERT_TRUE(json == Json::Json(3.14159));
     json = Json::Json::FromEncoding("-17.03");
-    ASSERT_TRUE(json == Json::Json(-17.03));
+    ASSERT_EQ(json, Json::Json((double)-17.03));
     json = Json::Json::FromEncoding("5.3e-4");
     ASSERT_TRUE(json == Json::Json(5.3e-4));
     json = Json::Json::FromEncoding("5.03e+14");
