@@ -553,7 +553,11 @@ namespace Json{
                             && (codePoints[index] <= (Utf8::UnicodeCodePoint)'9')
                         ) {
                             ++fractionDigits;
-                            fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
+                            fraction += (
+                                (double)(
+                                    codePoints[index] - (Utf8::UnicodeCodePoint)'0' 
+                                ) / pow(10.0, (double)fractionDigits)
+                            );
                         } else {
                             return;
                         }
@@ -567,7 +571,11 @@ namespace Json{
                             && (codePoints[index] <= (Utf8::UnicodeCodePoint)'9')
                         ) {
                             ++fractionDigits;
-                            fraction += (double)(s[index] - '0') / pow(10.0, (double)fractionDigits);
+                            fraction += (
+                                (double)(
+                                    codePoints[index] - (Utf8::UnicodeCodePoint)'0'
+                                ) / pow(10.0, (double)fractionDigits)
+                            );
                         } else if (
                             (codePoints[index] == (Utf8::UnicodeCodePoint)'e') 
                             || (codePoints[index] == (Utf8::UnicodeCodePoint)'E')

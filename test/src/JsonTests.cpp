@@ -64,6 +64,9 @@ TEST(JsonTests, BadNumbers) {
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("-0025"));
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding(".4"));
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999.0"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("le99999999999999999999999999999999999999999999999999999999"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("le"));
 }
 
 TEST(JsonTests, NotFlotingPointDownCastToFloatingPoint) {
