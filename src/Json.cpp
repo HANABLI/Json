@@ -313,7 +313,7 @@ namespace Json{
             std::string* stringValue;
             std::vector< std::shared_ptr< Json >>* arrayValue;
             std::map< std::string, std::shared_ptr< Json >>* objectValue;
-            intmax_t integerValue;
+            int integerValue;
             double floatValue;
         };
         
