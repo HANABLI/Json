@@ -1050,31 +1050,84 @@ namespace Json{
             case Type::Array: {
                 impl_->encoding = '[';
                 bool isFirst = true;
+                auto nestedOption = options;
+                ++nestedOption.numIndentationLevels;
+                std::string nestedIndentation((nestedOption.numIndentationLevels * nestedOption.spacesIndentationLevels), ' ');
+                std::string wrappedEncoding = "[\r\n";
                 for (const auto value: *impl_->arrayValue) {
                     if (isFirst) {
                         isFirst = false;
                     } else {
-                        impl_->encoding += ',';
+                        impl_->encoding += (nestedOption.pretty? ", " : ",");
+                        wrappedEncoding += ",\r\n";
                     }
-                    impl_->encoding += value->ToEncoding(options);
+                    const auto encodingValue = value->ToEncoding(nestedOption);
+                    impl_->encoding += encodingValue;
+                    wrappedEncoding += nestedIndentation;
+                    wrappedEncoding += encodingValue;
                 }
                 impl_->encoding += ']';
+                std::string indentation(
+                    (
+                        options.numIndentationLevels
+                        * options.spacesIndentationLevels
+                    ),
+                    ' '
+                );
+                wrappedEncoding += "\r\n";
+                wrappedEncoding += indentation;
+                wrappedEncoding += "]";
+                if (
+                    options.pretty
+                    && (indentation.length() + impl_->encoding.length() > options.wrapthreshold)
+                ) {
+                    impl_->encoding = wrappedEncoding;
+                }
             } break;
             case Type::Object: {
                 impl_->encoding = '{';
                 bool isFirst = true;
+                auto nestedOption = options;
+                ++nestedOption.numIndentationLevels;
+                std::string nestedIndentation(
+                    (
+                        nestedOption.numIndentationLevels
+                        * nestedOption.spacesIndentationLevels
+                    ),
+                    ' '
+                );
+                std::string wrappedEncoding = "{\r\n";    
                 for (const auto& entry: *impl_->objectValue) {
                     if (isFirst) {
                         isFirst = false;
                     } else {
-                        impl_->encoding += ',';
+                        impl_->encoding += (nestedOption.pretty? ", " : ",");
+                        wrappedEncoding += ",\r\n";
                     }
                     const Json keyAsJson(entry.first);
-                    impl_->encoding += keyAsJson.ToEncoding(options);
-                    impl_->encoding += ':';
-                    impl_->encoding += entry.second->ToEncoding(options);
+                    const auto encodedValue = (
+                        keyAsJson.ToEncoding(nestedOption)
+                        + (nestedOption.pretty ? ": " : ":")
+                        + entry.second->ToEncoding(nestedOption)
+                    );
+                    impl_->encoding += encodedValue;
+                    wrappedEncoding += nestedIndentation;
+                    wrappedEncoding += encodedValue;
                 }
                 impl_->encoding += '}';
+                std::string indentation(
+                    (options.numIndentationLevels
+                    * options.spacesIndentationLevels),
+                    ' '
+                );
+                wrappedEncoding += "\r\n";
+                wrappedEncoding += indentation;
+                wrappedEncoding += "}";
+                if (options.pretty 
+                    && (indentation.length() + impl_->encoding.length() > options.wrapthreshold)
+                ) {
+                    impl_->encoding = wrappedEncoding;
+                }
             } break;
             default:
                 impl_->encoding = "???";

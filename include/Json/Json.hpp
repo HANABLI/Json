@@ -35,6 +35,35 @@ namespace Json
          * encoding.
          */
         bool reencode = false;
+
+        /**
+         * This flag indicates whether or not to add whitespace
+         * to line up and indent nested structurs when encoding
+         * JSON values. 
+         */
+        bool pretty = false;
+
+        /**
+         * If pretty printing is enebled, this is the number of
+         * spaces to be intent when an element of an array or
+         * object is wrapped to a new line. 
+         */
+        size_t spacesIndentationLevels = 4;
+
+        /**
+         * If pretty printing is enabled, this is the maximum
+         * length to allow for any line before breaking up a
+         * line between elements of an array or object.
+         */
+        size_t wrapthreshold = 60;
+
+        /**
+         * This is the number of levels of nesting under which
+         * to assume the JSON value is located. It's used to 
+         * compute the actual number of spaces to indent in order
+         * to show the value's elements at the correct depth.
+         */
+        size_t numIndentationLevels = 0;
     };
     /**
      * This class represent a data structure that was parsed
