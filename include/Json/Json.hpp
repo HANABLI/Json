@@ -159,6 +159,23 @@ namespace Json
          */
         Json(const char* value);
 
+        /**
+         * This constructs a JSON array containing copies of the
+         * elements in the given initializer list.
+         * 
+         * @param[in] args
+         *      These are the values to copie in the new array.
+         */
+        Json(std::initializer_list< const Json > args);
+
+        /**
+         * This constructs a JSON array containing copies of the
+         * elements in the given initializer list.
+         * 
+         * @param[in] args
+         *      These are the values to copie in the new array.
+         */
+        Json(std::initializer_list< std::pair< std::string, const Json > > args);
 
         /**
          * This is the equality compariosn operator.

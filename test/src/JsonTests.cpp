@@ -372,3 +372,10 @@ TEST(JsonTests, JsonTests_PrettyPrintingArray_Test) {
         json.ToEncoding(options)
     );
 }
+
+TEST(JsonTests, JsonTests_JsonArrayInitializerList_Test) {
+    Json::Json json{
+        42, "Hello, World!", true
+    };
+    ASSERT_EQ("[42,\"Hello, World!\",true]", json.ToEncoding());
+} 
