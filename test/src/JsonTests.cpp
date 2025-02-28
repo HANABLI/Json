@@ -1,14 +1,14 @@
 /**
  * @file JsonTests.cpp
- * 
+ *
  * This module contains the unit test of the
  * Json::Json class.
- * 
+ *
  * © 2024 by Hatem Nabli
  */
 
-#include <math.h>
 #include <gtest/gtest.h>
+#include <math.h>
 #include <Json/Json.hpp>
 
 TEST(JsonTests, JsonTests_FromNull_Test) {
@@ -63,9 +63,12 @@ TEST(JsonTests, BadNumbers) {
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("0025"));
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("-0025"));
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding(".4"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999.0"));
-    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("le99999999999999999999999999999999999999999999999999999999"));
+    EXPECT_EQ(Json::Json(),
+              Json::Json::FromEncoding("99999999999999999999999999999999999999999999999999999999"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding(
+                                "99999999999999999999999999999999999999999999999999999999.0"));
+    EXPECT_EQ(Json::Json(), Json::Json::FromEncoding(
+                                "le99999999999999999999999999999999999999999999999999999999"));
     EXPECT_EQ(Json::Json(), Json::Json::FromEncoding("le"));
 }
 
@@ -99,13 +102,16 @@ TEST(JsonTests, JsonTests_ToCppString_Test) {
 
 TEST(JsonTests, JsonTests_ProperlyEscapedCharactersInString_Test) {
     Json::Json json(std::string("These need to be escaped: \", \\, \b, \n, \f, \r, \t"));
-    ASSERT_EQ("\"These need to be escaped: \\\", \\\\, \\b, \\n, \\f, \\r, \\t\"", json.ToEncoding());
+    ASSERT_EQ("\"These need to be escaped: \\\", \\\\, \\b, \\n, \\f, \\r, \\t\"",
+              json.ToEncoding());
 }
 
 TEST(JsonTests, JsonTests_ProperlyEscapedUnicodeCharacters_Test) {
     std::string testStringDecoded("This is the Greek word 'kosme': κόσμε");
     std::string testStringEncodedDefault("\"This is the Greek word 'kosme': κόσμε\"");
-    std::string testStringEncodedEscapeNonAscii("\"This is the Greek word 'kosme': \\u03BA\\u1F79\\u03C3\\u03BC\\u03B5\"");
+    std::string testStringEncodedEscapeNonAscii(
+        "\"This is the Greek word 'kosme': "
+        "\\u03BA\\u1F79\\u03C3\\u03BC\\u03B5\"");
     Json::Json json(testStringDecoded);
     auto jsonEncoding = json.ToEncoding();
     EXPECT_EQ(testStringEncodedDefault, jsonEncoding);
@@ -125,7 +131,6 @@ TEST(JsonTests, BadlyEscapeUnicodeCharacter) {
     EXPECT_EQ(Json::Json(), json);
     json = Json::Json::FromEncoding("\"This is bad: \\x\"");
     EXPECT_EQ(Json::Json(), json);
-
 }
 
 TEST(JsonTests, JsonTests_FromInteger_Test) {
@@ -143,7 +148,7 @@ TEST(JsonTests, JsonTests_ToInteger_Test) {
 TEST(JsonTests, JsonTests_FromFloatingPoint_Test) {
     Json::Json json(3.14159);
     ASSERT_EQ("3.14159", json.ToEncoding());
-} 
+}
 
 TEST(JsonTests, JsonTests_ToFloatingPoint_Test) {
     auto json = Json::Json::FromEncoding("3.14159");
@@ -162,17 +167,20 @@ TEST(JsonTests, JsonTests_SurrogatePairEncoding_Test) {
     Json::Json json(std::string("This should be encoded as a UTF-16 surrogate pair: 𣎴"));
     Json::JsonEncodingOptions options;
     options.escapeNonAscii = true;
-    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD84C\\uDFB4\"", json.ToEncoding(options));
+    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD84C\\uDFB4\"",
+              json.ToEncoding(options));
     json = Json::Json(std::string("This should be encoded as a UTF-16 surrogate pair: 💩"));
-    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD83D\\uDCA9\"", json.ToEncoding(options));
+    ASSERT_EQ("\"This should be encoded as a UTF-16 surrogate pair: \\uD83D\\uDCA9\"",
+              json.ToEncoding(options));
 }
 
 TEST(JsonTests, JsonTests_SurrogatePairDecoding_Test) {
     std::string encoding("\"This should be encoded as a UTF-16 surrogate pair: \\uD84C\\uDFB4\"");
-    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 𣎴", (std::string)Json::Json::FromEncoding(encoding));
+    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 𣎴",
+              (std::string)Json::Json::FromEncoding(encoding));
     encoding = "\"This should be encoded as a UTF-16 surrogate pair: \\uD83D\\uDCA9\"";
-    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 💩", (std::string)Json::Json::FromEncoding(encoding));
-
+    ASSERT_EQ("This should be encoded as a UTF-16 surrogate pair: 💩",
+              (std::string)Json::Json::FromEncoding(encoding));
 }
 
 TEST(JsonTests, JsonTests_EncodingOfInvalidJson_Test) {
@@ -204,13 +212,13 @@ TEST(JsonTests, JsonTests_DecodeUnterminatedInnerArray_Test) {
     const std::string encoding("{ \"value\": 1, \"array\": [42, 57, \"flag\": true }");
     const auto json = Json::Json::FromEncoding(encoding);
     ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
-} 
+}
 
 TEST(JsonTests, JsonTests_DecodeUnterminatedInnerString_Test) {
     const std::string encoding("[1,\"Hello, true");
     const auto json = Json::Json::FromEncoding(encoding);
     ASSERT_EQ(Json::Json::Type::Invalid, json.GetType());
-} 
+}
 
 TEST(JsonTests, JsonTests_ArraysWhithernsArray_Test) {
     const std::string encoding("[1,[1,2],true]");
@@ -227,15 +235,35 @@ TEST(JsonTests, JsonTests_ArraysWhithernsArray_Test) {
     EXPECT_EQ(true, (bool)*json[2]);
 }
 
+TEST(JsonTests, JsonTests_ObjectsWhithernsObject_Test) {
+    const std::string encoding("{\"nested\":{\"value\": 31, \"well\": true}, \"end\": null}");
+    const auto json = Json::Json::FromEncoding(encoding);
+    ASSERT_TRUE(Json::Json::Type::Object == json.GetType());
+    ASSERT_EQ(2, json.GetSize());
+    ASSERT_TRUE(json.Has("nested"));
+    EXPECT_TRUE(json["nested"]->GetType() == Json::Json::Type::Object);
+    ASSERT_EQ(2, json["nested"]->GetSize());
+    ASSERT_TRUE(json.Has("end"));
+    ASSERT_TRUE(json["nested"]->Has("value"));
+    ASSERT_TRUE(json["nested"]->Has("well"));
+    EXPECT_TRUE((*json["nested"])["value"]->GetType() == Json::Json::Type::Integer);
+    EXPECT_TRUE((*json["nested"])["well"]->GetType() == Json::Json::Type::Boolean);
+    ASSERT_EQ(31, (int)*(*json["nested"])["value"]);
+    ASSERT_EQ(true, (bool)*(*json["nested"])["well"]);
+    EXPECT_TRUE(json["end"]->GetType() == Json::Json::Type::Null);
+}
+
 TEST(JsonTests, JsonTests_DecodeArrayWithWhiteSpace_Test) {
     const std::string encoding(" [ 1 ,\r \t \"Hello\" \r\n ,\n true ] ");
     const auto json = Json::Json::FromEncoding(encoding);
     ASSERT_TRUE(json.GetType() == Json::Json::Type::Array);
     ASSERT_EQ(3, json.GetSize());
-} 
+}
 
 TEST(JsonTests, JsonTests_DecodeObject_Test) {
-    const std::string encoding("{\"value\": 42, \"name\": \"Toto\", \"handles\":[3,7], \"is,live\": true}");
+    const std::string encoding(
+        "{\"value\": 42, \"name\": \"Toto\", \"handles\":[3,7], \"is,live\": "
+        "true}");
     const auto json = Json::Json::FromEncoding(encoding);
     ASSERT_EQ(Json::Json::Type::Object, json.GetType());
     ASSERT_EQ(4, json.GetSize());
@@ -244,7 +272,7 @@ TEST(JsonTests, JsonTests_DecodeObject_Test) {
     EXPECT_TRUE(json.Has("handles"));
     EXPECT_TRUE(json.Has("is,live"));
     EXPECT_FALSE(json.Has("feels bad"));
-    const auto value  = json["value"];
+    const auto value = json["value"];
     EXPECT_EQ(Json::Json::Type::Integer, value->GetType());
     EXPECT_EQ(42, (int)*value);
     const auto name = json["name"];
@@ -282,7 +310,8 @@ TEST(JsonTests, JsonTests_EncodeObjec_Test) {
     json.Set("Hello", "World");
     json.Set("PopChamp", true);
     json.Set("Nullptr", nullptr);
-    json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true,\"number\":42}", json.ToEncoding());
+    json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true,\"number\":42}",
+             json.ToEncoding());
     json.Remove("number");
     json.Set("{\"Hello\":\"World\",\"Nullptr\": null,\"PopChamp\":true}", json.ToEncoding());
 }
@@ -304,7 +333,7 @@ TEST(JsonTests, JsonTests_CompareObjects_Test) {
     const auto json5 = Json::Json::FromEncoding("{\"number\": 32,\"Hello\": [32, 7]}");
     EXPECT_EQ(json1, json2);
     EXPECT_NE(json1, json3);
-    EXPECT_NE(json2, json3);  
+    EXPECT_NE(json2, json3);
     EXPECT_NE(json4, json5);
 }
 
@@ -329,7 +358,9 @@ TEST(JsonTests, JsonTests_ReassignValue_Test) {
 }
 
 TEST(JsonTests, JsonTests_PrettyPrinting_Test) {
-    const std::string encoding("{\"value\": 31, \"name\": \"Toto\", \"handles\":[3,7], \"is,live\": true}");
+    const std::string encoding(
+        "{\"value\": 31, \"name\": \"Toto\", \"handles\":[3,7], \"is,live\": "
+        "true}");
     const auto json = Json::Json::FromEncoding(encoding);
     Json::JsonEncodingOptions options;
     options.reencode = true;
@@ -337,15 +368,13 @@ TEST(JsonTests, JsonTests_PrettyPrinting_Test) {
     options.spacesIndentationLevels = 4;
     options.wrapthreshold = 30;
     ASSERT_EQ(
-            "{\r\n"
-            "    \"handles\": [3, 7],\r\n"
-            "    \"is,live\": true,\r\n"
-            "    \"name\": \"Toto\",\r\n"
-            "    \"value\": 31\r\n"
-            "}"
-        ,
-        json.ToEncoding(options)
-    );
+        "{\r\n"
+        "    \"handles\": [3, 7],\r\n"
+        "    \"is,live\": true,\r\n"
+        "    \"name\": \"Toto\",\r\n"
+        "    \"value\": 31\r\n"
+        "}",
+        json.ToEncoding(options));
 }
 
 TEST(JsonTests, JsonTests_PrettyPrintingArray_Test) {
@@ -356,26 +385,20 @@ TEST(JsonTests, JsonTests_PrettyPrintingArray_Test) {
     options.pretty = true;
     options.spacesIndentationLevels = 4;
     options.wrapthreshold = 11;
-    ASSERT_EQ(
-        (
-            "[\r\n"
-            "    1,\r\n"
-            "    [2, 3],\r\n"
-            "    4,\r\n"
-            "    [\r\n"
-            "        4,\r\n"
-            "        9,\r\n" 
-            "        3\r\n"
-            "    ]\r\n"
-            "]"
-        ),
-        json.ToEncoding(options)
-    );
+    ASSERT_EQ(("[\r\n"
+               "    1,\r\n"
+               "    [2, 3],\r\n"
+               "    4,\r\n"
+               "    [\r\n"
+               "        4,\r\n"
+               "        9,\r\n"
+               "        3\r\n"
+               "    ]\r\n"
+               "]"),
+              json.ToEncoding(options));
 }
 
 TEST(JsonTests, JsonTests_JsonArrayInitializerList_Test) {
-    Json::Json json{
-        42, "Hello, World!", true
-    };
+    Json::Json json{42, "Hello, World!", true};
     ASSERT_EQ("[42,\"Hello, World!\",true]", json.ToEncoding());
-} 
+}
