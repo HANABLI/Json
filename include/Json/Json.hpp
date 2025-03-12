@@ -1,5 +1,5 @@
-#ifndef JSON_JSON_HPP
-#define JSON_JSON_HPP
+#ifndef JSON_VALUE_HPP
+#define JSON_VALUE_HPP
 
 /**
  * @file Json.hpp
@@ -71,7 +71,7 @@ namespace Json
      * Object Notation "JSON" Data Interchange Format, as specified
      * in RFC 7159
      */
-    class Json
+    class Value
     {
     public:
         /* data */
@@ -92,11 +92,11 @@ namespace Json
 
         // Life Cycle Management
     public:
-        ~Json();
-        Json(const Json&);
-        Json(Json&&);
-        Json& operator=(const Json&);
-        Json& operator=(Json&&);
+        ~Value();
+        Value(const Value&);
+        Value(Value&&);
+        Value& operator=(const Value&);
+        Value& operator=(Value&&);
 
         // Public methods
     public:
@@ -109,7 +109,7 @@ namespace Json
          *      Setting the type is only useful for invalid, null
          *      and mutable (array and object) types.
          */
-        Json(Type type = Type::Invalid);
+        Value(Type type = Type::Invalid);
 
         /**
          * This constructs a JSON object consisting of the "null" literal.
@@ -117,7 +117,7 @@ namespace Json
          * @param[in] null
          *      This is the object to wrap in JSON.
          */
-        Json(nullptr_t);
+        Value(nullptr_t);
 
         /**
          * This constructs a JSON object consisting of the boolean value.
@@ -125,7 +125,7 @@ namespace Json
          * @param[in] value
          *      This is the object to wrap in JSON.
          */
-        Json(bool value);
+        Value(bool value);
 
         /**
          * This construct a JSON object consisting of an integer value.
@@ -133,7 +133,7 @@ namespace Json
          * @param[in] value
          *      This is the object to wrap in JSON
          */
-        Json(int value);
+        Value(int value);
 
         /**
          * This construct a JSON object consisting of a double value.
@@ -141,7 +141,7 @@ namespace Json
          * @param[in] value
          *      This is the object to wrap in JSON
          */
-        Json(double value);
+        Value(double value);
 
         /**
          * This constructs a JSON object consisting of a string value.
@@ -149,7 +149,7 @@ namespace Json
          * @param[in] value
          *      This is the object to wrap in JSON.
          */
-        Json(const std::string& value);
+        Value(const std::string& value);
 
         /**
          * This constructs a json object consisting of a C string value.
@@ -157,7 +157,7 @@ namespace Json
          * @param[in] value
          *      This is the object to wrap in JSON.
          */
-        Json(const char* value);
+        Value(const char* value);
 
         /**
          * This constructs a JSON array containing copies of the
@@ -166,7 +166,7 @@ namespace Json
          * @param[in] args
          *      These are the values to copie in the new array.
          */
-        Json(std::initializer_list<const Json> args);
+        Value(std::initializer_list<const Value> args);
 
         /**
          * This constructs a JSON array containing copies of the
@@ -175,7 +175,7 @@ namespace Json
          * @param[in] args
          *      These are the values to copie in the new array.
          */
-        Json(std::initializer_list<std::pair<std::string, const Json>> args);
+        Value(std::initializer_list<std::pair<std::string, const Value>> args);
 
         /**
          * This is the equality compariosn operator.
@@ -187,7 +187,7 @@ namespace Json
          *      An indication of whether or not the two JSON objects are equal
          *      is returned.
          */
-        bool operator==(const Json& other) const;
+        bool operator==(const Value& other) const;
 
         /**
          * This is the inequality compariosn operator.
@@ -199,7 +199,7 @@ namespace Json
          *      An indication of whether or not the two JSON objects are not equal
          *      is returned.
          */
-        bool operator!=(const Json& other) const;
+        bool operator!=(const Value& other) const;
 
         /**
          * This is the typecast to bool operator for the class.
@@ -271,7 +271,7 @@ namespace Json
          *      This is returned if there is no element at the given index
          *      of the JSON value, or if the JSON value isn't an array.
          */
-        std::shared_ptr<Json> operator[](size_t index) const;
+        const Value& operator[](size_t index) const;
 
         /**
          * This method returns the element at the given index of the JSON value,
@@ -288,7 +288,7 @@ namespace Json
          *      This is returned if there is no element at the given index
          *      of the JSON value, or if the JSON value isn't an array.
          */
-        std::shared_ptr<Json> operator[](int index) const;
+        const Value& operator[](int index) const;
 
         /**
          * This method returns the element with the given name in the JSON value,
@@ -304,7 +304,7 @@ namespace Json
          *      This is returned if there is no element at the given name
          *      of the JSON value, or if the JSON value isn't an object.
          */
-        std::shared_ptr<Json> operator[](const std::string& key) const;
+        const Value& operator[](const std::string& key) const;
 
         /**
          * This method returns the element with the given name in the JSON value,
@@ -320,7 +320,7 @@ namespace Json
          *      This is returned if there is no element at the given name
          *      of the JSON value, or if the JSON value isn't an object.
          */
-        std::shared_ptr<Json> operator[](const char* key) const;
+        const Value& operator[](const char* key) const;
 
         // TODO Look into move semontics for large Json
         // tree assembly to avoid the cost of copy.
@@ -332,7 +332,7 @@ namespace Json
          * @param[in] value
          *      This is the value to copy into the array.
          */
-        void Add(const Json& value);
+        void Add(const Value& value);
 
         /**
          * This method makes a copy of the given value to be at the given index of the
@@ -345,7 +345,7 @@ namespace Json
          * @param[in] index
          *      This is the position into which to copy the given value.
          */
-        void Insert(const Json& value, size_t index);
+        Value& Insert(const Value& value, size_t index);
 
         /**
          * This method makes a copy of the given value to be in the object
@@ -356,7 +356,7 @@ namespace Json
          * @param[in] value
          *      This is the value to copy under the given key.
          */
-        void Set(const std::string& key, const Json& value);
+        Value& Set(const std::string& key, const Value& value);
 
         /**
          * This method removes the value at the given key in the object,
@@ -425,7 +425,7 @@ namespace Json
          * @param[in] stringFormat
          *      This is the string format of the JSON object to construct.
          */
-        static Json FromEncoding(const std::string& stringFormat);
+        static Value FromEncoding(const std::string& stringFormat);
 
         /**
          * This method returns a new JSON object constructed by parsing
@@ -434,7 +434,7 @@ namespace Json
          * @param[in] stringFormat
          *      This is the string format of the JSON object to construct.
          */
-        static Json FromEncoding(const std::vector<Utf8::UnicodeCodePoint>& stringFormat);
+        static Value FromEncoding(const std::vector<Utf8::UnicodeCodePoint>& stringFormat);
 
         /**
          * This method sets the flag which controls whether or not
@@ -477,7 +477,7 @@ namespace Json
      *      This points to the stream to which to print the
      *      json value.
      */
-    void PrintTo(const Json& json, std::ostream* os);
+    void PrintTo(const Value& json, std::ostream* os);
 
     /**
      * This is a support function for Google Test to print out
@@ -490,8 +490,8 @@ namespace Json
      *      This points to the stream to which to print the
      *      json type value.
      */
-    void PrintTo(Json::Type& type, std::ostream* os);
+    void PrintTo(Value::Type& type, std::ostream* os);
 
 }  // namespace Json
 
-#endif /* JSON_JSON_HPP */
+#endif /* JSON_VALUE_HPP */
