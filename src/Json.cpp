@@ -972,6 +972,16 @@ namespace Json
         } else
         { return 0; }
     }
+    std::vector<std::string> Value::GetKeys() const {
+        std::vector<std::string> keys;
+        if (impl_->type == Type::Object)
+        {
+            keys.reserve(impl_->objectValue->size());
+            for (const auto& entry : *impl_->objectValue)
+            { keys.push_back(entry.first); }
+        }
+        return keys;
+    }
 
     bool Value::Has(const std::string& key) const {
         if (impl_->type == Type::Object)

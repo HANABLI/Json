@@ -402,3 +402,10 @@ TEST(JsonTests, JsonTests_JsonArrayInitializerList_Test) {
     Json::Value json{42, "Hello, World!", true};
     ASSERT_EQ("[42,\"Hello, World!\",true]", json.ToEncoding());
 }
+
+TEST(JsonTests, JsonTests_GetKey_Test) {
+    const std::string encoding(
+        "{\"value\": 42, \"\": \"Pepe\", \"the handles\":[3,7], \"is,live\": true}");
+    const auto json = Json::Value::FromEncoding(encoding);
+    ASSERT_EQ((std::vector<std::string>{"", "is,live", "the handles", "value"}), json.GetKeys());
+}

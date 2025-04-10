@@ -406,6 +406,20 @@ namespace Json
          *      for a name is returned.
          */
         bool Has(const std::string& key) const;
+
+        /**
+         * This method returns the collections of keys of the values
+         * in the JSON object.
+         *
+         * @return
+         *      A collection of key of the values in the JSON object
+         *      is returned.
+         *
+         *      If the JSON value is not an object, an empty collection
+         *      is returned.
+         */
+        std::vector<std::string> GetKeys() const;
+
         /**
          * This encode a JSON object into its string format.
          *
