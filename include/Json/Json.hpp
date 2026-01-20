@@ -12,7 +12,11 @@
 #include <Utf8/Utf8.hpp>
 #include <memory>
 #include <string>
+#include <map>
 #include <vector>
+#include <utility>
+#include <stddef.h>
+#include <iostream>
 
 namespace Json
 {
@@ -116,6 +120,71 @@ namespace Json
             Iterator(const Json::Value* container,
                      std::map<std::string, Value>::const_iterator&& nextObjectEntry);
 
+            /**
+             * This operator advences the iterator to the next value
+             * in the array or object.
+             */
+            void operator++();
+
+            /**
+             * This operator check if the iterator is differnet of  an
+             * other one.
+             *
+             * @param[in] other
+             *      This is the other iterator to which to compare this one.
+             * @return
+             *      If the two iterators are not equal, true is returned otherwise,
+             *      false is returned.
+             */
+            bool operator!=(const Iterator& other);
+
+            /**
+             * This is the dereference operator. It return a reference
+             * back to the iterator
+             *
+             * @return
+             *      A reference to the iterator is returned.
+             */
+            Iterator& operator*();
+
+            /**
+             * Provide access to the value at the iterator's
+             * current position in the JSON array or object.
+             *
+             * @return
+             *      A reference to the value at the iterator's
+             *      current position in the JSON object is returned.
+             */
+            const std::string& key() const;
+
+            /**
+             * Provide access to the value at the iterator's
+             * current position in the JSON array or object.
+             *
+             * @return
+             *      A reference to the value at the iterator's
+             *      current position in the JSON array or object is returned.
+             */
+            const Json::Value& value() const;
+
+        private:
+            /**
+             * This points to the JSON array or object to iterate.
+             */
+            const Json::Value* container = nullptr;
+
+            /**
+             * If a JSON array is being iterated, this points to the value
+             * at the current position in the array.
+             */
+            std::vector<Value>::const_iterator nextArrayEntry;
+
+            /**
+             * If a JSON object is being iterated, this points to the value
+             * at the current position in the object.
+             */
+            std::map<std::string, Value>::const_iterator nextObjectEntry;
+        };
         // Life Cycle Management
     public:
         ~Value();
