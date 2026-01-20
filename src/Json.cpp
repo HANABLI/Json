@@ -722,6 +722,43 @@ namespace Json
         }
     };
 
+    Value::Iterator::Iterator(const Json::Value* container,
+                              std::vector<Value>::const_iterator&& nextArrayEntry) :
+        container(container), nextArrayEntry(std::move(nextArrayEntry)) {}
+
+    Value::Iterator::Iterator(const Json::Value* container,
+                              std::map<std::string, Value>::const_iterator&& nextObjectEntry) :
+        container(container), nextObjectEntry(std::move(nextObjectEntry)) {}
+    void Value::Iterator::operator++() {
+        if (container->GetType() == Value::Type::Array)
+        { ++nextArrayEntry; }
+        if (container->GetType() == Value::Type::Object)
+        { ++nextObjectEntry; }
+    }
+
+    bool Value::Iterator::operator!=(const Value::Iterator& other) {
+        if (container->GetType() == Value::Type::Array)
+        {
+            return nextArrayEntry != other.nextArrayEntry;
+        } else
+        { return nextObjectEntry != other.nextObjectEntry; }
+    }
+
+    auto Value::Iterator::operator*() -> Iterator& { return *this; }
+
+    const std::string& Value::Iterator::key() const { return nextObjectEntry->first; }
+
+    const Value& Value::Iterator::value() const {
+        if (container && container->GetType() == Value::Type::Array)
+        { return *nextArrayEntry; }
+
+        if (container && container->GetType() == Value::Type::Object)
+        { return nextObjectEntry->second; }
+
+        static Value nullValue;
+        return nullValue;
+    }
+
     Value::~Value() = default;
     Value::Value(const Value& other) : impl_(new Impl) { impl_->CopyFrom(other.impl_); }
     Value::Value(Value&&) = default;
@@ -1161,6 +1198,21 @@ namespace Json
         return json;
     }
 
+    auto Value::begin() const -> Value::Iterator {
+        if (impl_->type == Type::Array)
+        {
+            return Iterator(this, impl_->arrayValue->begin());
+        } else
+        { return Iterator(this, impl_->objectValue->begin()); }
+    }
+
+    auto Value::end() const -> Value::Iterator {
+        if (impl_->type == Value::Type::Array)
+        {
+            return Iterator(this, impl_->arrayValue->end());
+        } else
+        { return Iterator(this, impl_->arrayValue->end()); }
+    }
     void PrintTo(Value::Type& type, std::ostream* os) {
         switch (type)
         {

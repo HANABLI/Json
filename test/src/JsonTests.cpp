@@ -409,3 +409,25 @@ TEST(JsonTests, JsonTests_GetKey_Test) {
     const auto json = Json::Value::FromEncoding(encoding);
     ASSERT_EQ((std::vector<std::string>{"", "is,live", "the handles", "value"}), json.GetKeys());
 }
+
+TEST(JsonTests, JsonTests_ArrayIterator_Test) {
+    const auto array = Json::Array({"a", "b", "c"});
+    std::vector<std::string> values;
+    for (auto arrayEntry : array)
+    { values.push_back(arrayEntry.value()); }
+    ASSERT_EQ(std::vector<std::string>({"a", "b", "c"}), values);
+}
+
+// TEST(JsonTests, JsonTests_ObjectIterator_Test) {
+//     const auto objects = Json::Object({{"toto", "toto"}, {"titi", "titi"}});
+//     std::vector<std::string> keys;
+//     std::vector<Json::Value> values;
+//     for (auto objectEntry : objects)
+//     {
+//         keys.push_back(objectEntry.key());
+//         values.push_back(objectEntry.value());
+//     }
+
+//     EXPECT_EQ(std::vector<Json::Value>({"toto", "titi"}), values);
+//     EXPECT_EQ(std::vector<std::string>({"toto", "titi"}), keys);
+// }

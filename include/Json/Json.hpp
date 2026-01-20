@@ -89,6 +89,32 @@ namespace Json
             Array,
             Object
         };
+        class Iterator
+        {
+        public:
+            /**
+             * Construct an iterator pointing to the given position
+             * in a JSON array.
+             *
+             * @param[in] container
+             *      This point to the json array to iterate.
+             * @param[in] nextArrayEntry
+             *      This is the initial position to set for the iterator.
+             */
+            Iterator(const Json::Value* container,
+                     std::vector<Value>::const_iterator&& nextArrayEntry);
+
+            /**
+             * Construct an iterator pointing to the given position
+             * in a JSON objet.
+             *
+             * @param[in] container
+             *      This point to the json to iterate.
+             * @param[in] nextObjectEntry
+             *      This is the initial position to set for the iterator.
+             */
+            Iterator(const Json::Value* container,
+                     std::map<std::string, Value>::const_iterator&& nextObjectEntry);
 
         // Life Cycle Management
     public:
