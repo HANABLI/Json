@@ -516,6 +516,26 @@ namespace Json
         std::vector<std::string> GetKeys() const;
 
         /**
+         * This method returns an iterator pointing to the first value
+         * in the JSON array or object.
+         *
+         * @return
+         *      An iterator pointing to the first value in the JSON array
+         *      or object.
+         */
+        Iterator begin() const;
+
+        /**
+         * This method returns an iterator pointing to the end of the JSON array
+         * or object.
+         *
+         * @return
+         *      An iterator pointing to the last value in the JSON array
+         *      or object.
+         */
+        Iterator end() const;
+
+        /**
          * This encode a JSON object into its string format.
          *
          * @param[in] options
