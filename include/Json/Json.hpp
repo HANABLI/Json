@@ -507,6 +507,24 @@ namespace Json
     };
 
     /**
+     * This construct a Json array containing copies of the arguments
+     * in the given initializer list.
+     *
+     * @param[in] args
+     *      This is the initializer list of Values used to construct a Json array.
+     *
+     */
+    Value Array(std::initializer_list<const Value> args);
+
+    /**
+     * This construct a Json object containing copies of the arguments
+     * in the given initializer list.
+     *
+     * @param[in] args
+     *      This is the initializer list of pairs used to construct a Json Object.
+     */
+    Value Object(std::initializer_list<std::pair<const std::string, const Value>> args);
+    /**
      * This is a support function for Google Test to print out
      * a Json value.
      *

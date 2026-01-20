@@ -1213,6 +1213,21 @@ namespace Json
         } else
         { return Iterator(this, impl_->arrayValue->end()); }
     }
+
+    Value Array(std::initializer_list<const Value> args) {
+        Value json(Value::Type::Array);
+        for (auto arg = args.begin(); arg != args.end(); ++arg)
+        { json.Add(*arg); }
+        return json;
+    }
+
+    Value Object(std::initializer_list<std::pair<const std::string, const Value>> args) {
+        Value json(Value::Type::Object);
+        for (auto arg = args.begin(); arg != args.end(); ++arg)
+        { json.Set(arg->first, arg->second); }
+        return json;
+    }
+
     void PrintTo(Value::Type& type, std::ostream* os) {
         switch (type)
         {
