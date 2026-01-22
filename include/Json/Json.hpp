@@ -15,7 +15,7 @@
 #include <map>
 #include <vector>
 #include <utility>
-#include <stddef.h>
+#include <cstddef>
 #include <iostream>
 
 namespace Json
@@ -212,7 +212,7 @@ namespace Json
          * @param[in] null
          *      This is the object to wrap in JSON.
          */
-        Value(nullptr_t);
+        Value(std::nullptr_t);
 
         /**
          * This constructs a JSON object consisting of the boolean value.

@@ -13,6 +13,7 @@
 #include <map>
 #include <memory>
 #include <stack>
+#include <cmath>
 #include <vector>
 
 namespace
@@ -796,7 +797,7 @@ namespace Json
         }
     }
 
-    Value::Value(nullptr_t) : impl_(new Impl) { impl_->type = Type::Null; }
+    Value::Value(std::nullptr_t) : impl_(new Impl) { impl_->type = Type::Null; }
 
     Value::Value(bool value) : impl_(new Impl) {
         impl_->type = Type::Boolean;
